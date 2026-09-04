@@ -332,6 +332,73 @@
   .project-media video{width:100%;height:100%;object-fit:cover;display:block;background:#000;cursor:pointer}
   .project-media iframe{width:100%;height:100%;border:none;display:block}
 
+  /* Multi-Media Slider / Carousel */
+  .media-slider{
+    position:relative;width:100%;height:100%;overflow:hidden;
+    user-select:none;-webkit-user-select:none;
+    touch-action:pan-y;
+  }
+  .media-slides{
+    display:flex;width:100%;height:100%;
+    overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  .media-slides::-webkit-scrollbar{display:none}
+  .media-slide{
+    flex:0 0 100%;width:100%;height:100%;position:relative;background:#050706;
+    display:grid;place-items:center;overflow:hidden;
+    scroll-snap-align:start;scroll-snap-stop:always;cursor:pointer;
+  }
+  .media-nav-btn{
+    position:absolute;top:50%;transform:translateY(-50%);z-index:12;
+    width:36px;height:36px;border-radius:50%;
+    background:rgba(5,7,6,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.22);color:var(--text);
+    display:grid;place-items:center;cursor:pointer;padding:0;
+    transition:background .2s ease,transform .2s ease,border-color .2s ease,color .2s ease,opacity .2s ease;
+    opacity:.85;font-size:20px;line-height:1;
+  }
+  .project:hover .media-nav-btn, .media-slider:hover .media-nav-btn{opacity:1}
+  .media-nav-btn:hover{background:var(--green);color:#041108;border-color:transparent;transform:translateY(-50%) scale(1.12)}
+  .media-nav-btn.prev{left:10px}
+  .media-nav-btn.next{right:10px}
+  
+  .media-dots{
+    position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:12;
+    display:flex;gap:6px;padding:4px 9px;border-radius:999px;
+    background:rgba(5,7,6,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.14);pointer-events:auto;
+  }
+  .media-dot{
+    width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.35);transition:all .3s ease;
+    cursor:pointer;border:none;padding:0;outline:none;
+  }
+  .media-dot:hover{background:rgba(255,255,255,.8);transform:scale(1.25)}
+  .media-dot.active{
+    width:18px;border-radius:999px;background:var(--green);box-shadow:0 0 8px rgba(70,245,138,.6);
+  }
+  .media-count-badge{
+    position:absolute;top:12px;right:12px;z-index:12;
+    background:rgba(5,7,6,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.14);color:#e2ebe5;
+    font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;display:flex;align-items:center;gap:4px;
+    pointer-events:none;
+  }
+  .theater-thumb-item{
+    width:58px;height:38px;border-radius:6px;overflow:hidden;border:1.5px solid var(--line);
+    cursor:pointer;opacity:0.6;transition:all .2s ease;flex-shrink:0;background:#000;
+  }
+  .theater-thumb-item.active{
+    border-color:var(--green);opacity:1;transform:scale(1.05);box-shadow:0 0 8px rgba(70,245,138,.4);
+  }
+  .theater-thumb-item img, .theater-thumb-item video{
+    width:100%;height:100%;object-fit:cover;pointer-events:none;
+  }
+
   .video-badge{
     position:absolute;top:12px;left:12px;z-index:4;
     background:rgba(5,7,6,.82);backdrop-filter:blur(10px);
@@ -423,6 +490,27 @@
   .empty{
     grid-column:1/-1;border:1px dashed var(--line);border-radius:var(--radius);
     padding:50px;text-align:center;color:var(--muted)
+  }
+
+  /* Multi-Media Editor Styles */
+  .media-items-container{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:10px;max-height:220px;overflow-y:auto;padding:4px;
+  }
+  .media-item-card{
+    position:relative;border-radius:12px;overflow:hidden;background:#050706;border:1px solid var(--line);
+    aspect-ratio:16/10;display:grid;place-items:center;transition:border-color .2s ease;
+  }
+  .media-item-card:hover{border-color:var(--green)}
+  .media-item-card img, .media-item-card video{width:100%;height:100%;object-fit:cover}
+  .media-item-del{
+    position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;
+    background:rgba(255,95,103,.9);color:#fff;border:none;cursor:pointer;display:grid;place-items:center;
+    font-size:12px;font-weight:700;line-height:1;padding:0;z-index:5;
+  }
+  .media-item-del:hover{transform:scale(1.1);background:#ff3340}
+  .media-item-type{
+    position:absolute;bottom:4px;left:4px;background:rgba(5,7,6,.8);backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.12);color:var(--text);font-size:9.5px;padding:2px 6px;border-radius:999px;font-weight:600;
   }
 
   /* Host Guide Box */
@@ -896,30 +984,70 @@ const firebaseConfig = {
     <div class="form-grid">
       <label>Project title<input id="pTitle" placeholder="e.g. Kinetic Brand Identity" required></label>
       <label>Category<input id="pCategory" placeholder="e.g. Motion Design" required></label>
+      <label class="full">Project link (optional)<input id="pLink" placeholder="https://... or Behance / YouTube"></label>
       <label class="full">Description<textarea id="pDescription" placeholder="Project overview, creative direction, motion tools used..."></textarea></label>
-      <label>Project link (optional)<input id="pLink" placeholder="https://..."></label>
-      <label>Media type
-        <select id="pMediaType">
-          <option value="image">Image (JPG, PNG, WebP, GIF)</option>
-          <option value="video">Video (MP4, WebM, MOV, YouTube, Vimeo)</option>
-        </select>
-      </label>
-      <label class="full">
-        Upload video or image
-        <input id="pMediaFile" type="file" accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime,video/*">
-      </label>
-      <label class="full">
-        Or media URL / local video file name
-        <input id="pMediaUrl" placeholder="e.g. showreel.mp4, or https://... or YouTube/Vimeo link">
-      </label>
-      
-      <!-- Live Media Preview -->
-      <div class="full" id="mediaPreviewWrapper" style="display:none;padding:12px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.025)">
+      <!-- Cover / Thumbnail Option -->
+      <div class="full" style="padding:14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02);margin-bottom:6px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="font-size:12px;font-weight:600;color:var(--green)">Media Preview</span>
-          <span id="mediaTypeBadge" class="tag" style="font-size:11px">Auto-detected</span>
+          <div>
+            <b style="color:var(--text);font-size:13px">Project Thumbnail / Cover Image</b>
+            <span class="small" style="display:block;color:var(--muted)">The main preview cover photo displayed on your project card before opening or sliding.</span>
+          </div>
+          <span id="thumbnailBadge" class="tag" style="font-size:11px">Auto / Default</span>
         </div>
-        <div id="mediaPreviewBox" style="aspect-ratio:16/9;max-height:220px;border-radius:12px;overflow:hidden;background:#050706;display:grid;place-items:center;border:1px solid var(--line)"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end">
+          <label style="margin:0">
+            Upload Thumbnail File
+            <input id="pThumbFile" type="file" accept="image/*">
+          </label>
+          <label style="margin:0">
+            Or Thumbnail Image URL
+            <input id="pThumbUrl" placeholder="https://... or cover.jpg">
+          </label>
+        </div>
+        <div id="thumbPreviewWrap" style="display:none;margin-top:10px;align-items:center;gap:12px">
+          <div style="width:72px;height:48px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:#000">
+            <img id="thumbPreviewImg" style="width:100%;height:100%;object-fit:cover">
+          </div>
+          <button class="btn danger" type="button" id="clearThumbBtn" style="padding:4px 10px;font-size:11px">Remove Custom Thumbnail</button>
+        </div>
+      </div>
+      <!-- Multi-Media Attachment Section -->
+      <div class="full" style="padding:14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <b style="color:var(--text);font-size:13px">Project Media (Photos &amp; Videos)</b>
+            <span class="small" style="display:block;color:var(--muted)">Attach multiple videos and photos to this project. They will appear as a sleek interactive carousel!</span>
+          </div>
+          <span id="mediaCountBadge" class="tag" style="font-size:11px">0 items</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-bottom:12px">
+          <label style="margin:0">
+            Add via File (Photos or Videos - select one or multiple)
+            <input id="pMediaMultiFiles" type="file" multiple accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime,video/*">
+          </label>
+          <button class="btn primary" type="button" id="addMediaFilesBtn" style="height:44px;padding:0 18px">Add Files ＋</button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 140px auto;gap:10px;align-items:end">
+          <label style="margin:0">
+            Or Add via URL / YouTube / Vimeo / Local File
+            <input id="pMediaSingleUrl" placeholder="e.g. video.mp4, https://..., or YouTube/Vimeo link">
+          </label>
+          <label style="margin:0">
+            Type
+            <select id="pMediaSingleType">
+              <option value="auto">Auto-detect</option>
+              <option value="video">Video</option>
+              <option value="image">Image</option>
+            </select>
+          </label>
+          <button class="btn" type="button" id="addMediaUrlBtn" style="height:44px;padding:0 18px">Add URL ＋</button>
+        </div>
+
+        <!-- Attached Media Items List -->
+        <div id="mediaItemsList" class="media-items-container" style="display:none"></div>
       </div>
     </div>
 
@@ -931,7 +1059,7 @@ const firebaseConfig = {
     </p>
     <div class="modal-actions">
       <button class="btn" type="button" onclick="projectDialog.close()">Cancel</button>
-      <button class="btn primary" id="saveProject" value="default">Save project</button>
+      <button class="btn primary" type="button" id="saveProject">Save project</button>
     </div>
   </form>
 </dialog>
@@ -941,14 +1069,20 @@ const firebaseConfig = {
   <div class="modal" style="max-width:980px;padding:22px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div>
-        <span class="kicker" style="margin-bottom:4px;display:block">Project Video</span>
-        <h3 id="theaterTitle" style="margin:0;font-size:22px">Video Showcase</h3>
+        <span class="kicker" id="theaterKicker" style="margin-bottom:4px;display:block">Project Media Gallery</span>
+        <h3 id="theaterTitle" style="margin:0;font-size:22px">Media Showcase</h3>
       </div>
-      <button class="btn" type="button" onclick="closeTheater()">Close ✕</button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="theaterCounter" class="tag" style="font-size:12px;display:none">1 / 1</span>
+        <button class="btn" type="button" onclick="closeTheater()">Close ✕</button>
+      </div>
     </div>
     <div id="theaterPlayerBox" style="position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:0 25px 80px rgba(0,0,0,.7)">
-      <!-- Dynamic Video/Embed Element -->
+      <div id="theaterMediaContainer" style="width:100%;height:100%;display:grid;place-items:center;background:#000"></div>
+      <button type="button" id="theaterPrevBtn" class="media-nav-btn prev" style="width:44px;height:44px;font-size:24px;opacity:0.9;left:14px;display:none" onclick="slideTheater(-1, event)" title="Previous (Left arrow)">‹</button>
+      <button type="button" id="theaterNextBtn" class="media-nav-btn next" style="width:44px;height:44px;font-size:24px;opacity:0.9;right:14px;display:none" onclick="slideTheater(1, event)" title="Next (Right arrow)">›</button>
     </div>
+    <div id="theaterThumbStrip" style="display:none;gap:8px;margin-top:12px;overflow-x:auto;padding-bottom:4px;align-items:center"></div>
     <p id="theaterDesc" class="small" style="margin-top:14px;margin-bottom:0;color:var(--muted);line-height:1.6"></p>
   </div>
 </dialog>
@@ -963,7 +1097,7 @@ const firebaseConfig = {
 // =================================================================
 // 1. CONFIGURATION & STATE
 // =================================================================
-const STORAGE_KEY = 'greenPortfolioData_v1';
+const STORAGE_KEY = 'greenPortfolioData_v2';
 const AUTH_KEY = 'greenPortfolio_ownerAuth';
 const PASS_KEY = 'greenPortfolio_passHash';
 const FIREBASE_CONFIG_KEY = 'greenPortfolio_firebaseConfig';
@@ -1004,43 +1138,419 @@ const defaults = {
     contactText: "I’m open to creative collaborations, freelance work, brand projects and digital experiences."
   },
   projects: [
-    {
-      id: crypto.randomUUID(),
-      title: "Motion Identity",
-      category: "Motion Design",
-      description: "A clean motion system built around rhythm, typography and deliberate movement.",
-      link: "#",
-      mediaType: "video",
-      media: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Digital Campaign",
-      category: "Visual Design",
-      description: "Minimal visual direction with high-contrast layouts and a focused campaign language.",
-      link: "#",
-      mediaType: "image",
-      media: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Creative Interface",
-      category: "Digital",
-      description: "An interface study combining product thinking, motion and a restrained visual system.",
-      link: "#",
-      mediaType: "image",
-      media: ""
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Experimental Frame",
-      category: "Experimental",
-      description: "A playground for new visual approaches, compositing and motion experiments.",
-      link: "#",
-      mediaType: "image",
-      media: ""
-    }
-  ]
+        {
+            "id": "proj-intro",
+            "title": "Creative Intro Reel",
+            "category": "Motion Graphics",
+            "description": "High-energy kinetic intro sequence showcasing dynamic pacing, typography, and motion design.",
+            "link": "#",
+            "thumbnail": "intro/i0.png",
+            "mediaType": "video",
+            "media": "intro/i1.mp4",
+            "mediaItems": [
+                {
+                    "type": "video",
+                    "src": "intro/i1.mp4"
+                }
+            ]
+        },
+        {
+            "id": "proj-motiongraphicsandvideoediting",
+            "title": "Motion Graphics & Video Editing",
+            "category": "Video Editing",
+            "description": "Commercial video edits, motion graphics systems, sound design, and color grading showcase reels.",
+            "link": "#",
+            "thumbnail": "Motion Graphics and Video Editing/m0.png",
+            "mediaType": "video",
+            "media": "Motion Graphics and Video Editing/m1.mp4",
+            "mediaItems": [
+                {
+                    "type": "video",
+                    "src": "Motion Graphics and Video Editing/m1.mp4"
+                },
+                {
+                    "type": "video",
+                    "src": "Motion Graphics and Video Editing/m2.mp4"
+                },
+                {
+                    "type": "video",
+                    "src": "Motion Graphics and Video Editing/m3.mp4"
+                },
+                {
+                    "type": "video",
+                    "src": "Motion Graphics and Video Editing/m4.mp4"
+                },
+                {
+                    "type": "video",
+                    "src": "Motion Graphics and Video Editing/m5.mp4"
+                }
+            ]
+        },
+        {
+            "id": "proj-xyronfictionalproject",
+            "title": "Xyron \u2014 Fictional Brand Identity",
+            "category": "Branding",
+            "description": "Comprehensive brand design concept featuring typography, identity system, color palette, and visual assets.",
+            "link": "#",
+            "thumbnail": "xyron Fictional Project/x0.png",
+            "mediaType": "image",
+            "media": "xyron Fictional Project/x1.png",
+            "mediaItems": [
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x1.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x2.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x3.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x4.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x5.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x6.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x7.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x8.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x9.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x10.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x11.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x12.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x13.png"
+                },
+                {
+                    "type": "image",
+                    "src": "xyron Fictional Project/x14.png"
+                }
+            ]
+        },
+        {
+            "id": "proj-digitalart",
+            "title": "Digital Art & Illustrations",
+            "category": "Digital Art",
+            "description": "Stylized digital paintings, concept sketches, and expressive character artwork created with digital brushes.",
+            "link": "#",
+            "thumbnail": "Digital Art/d0.png",
+            "mediaType": "image",
+            "media": "Digital Art/d1.jpg",
+            "mediaItems": [
+                {
+                    "type": "image",
+                    "src": "Digital Art/d1.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d2.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d3.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d4.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d5.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d6.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d7.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d8.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d9.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d10.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d11.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d12.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d13.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d14.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d15.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d16.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d17.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d18.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d19.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d20.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d21.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d22.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d23.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d24.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d25.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d26.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d27.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d28.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d29.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d30.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d31.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d32.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d33.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d34.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Digital Art/d35.jpg"
+                }
+            ]
+        },
+        {
+            "id": "proj-clubprojects",
+            "title": "Club & Organization Projects",
+            "category": "Branding",
+            "description": "Visual identity, promotional campaigns, and creative event assets designed for club initiatives.",
+            "link": "#",
+            "thumbnail": "Club Projects/club0.png",
+            "mediaType": "image",
+            "media": "Club Projects/club1.jpg",
+            "mediaItems": [
+                {
+                    "type": "image",
+                    "src": "Club Projects/club1.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club2.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club3.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club4.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club5.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club6.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club7.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club8.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club9.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club10.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club11.png"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club12.png"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club13.png"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club14.png"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club15.png"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club16.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "Club Projects/club17.jpg"
+                }
+            ]
+        },
+        {
+            "id": "proj-logos",
+            "title": "Logo Design & Brand Marks",
+            "category": "Branding",
+            "description": "Custom logotypes, vector emblems, and minimal monogram marks crafted for modern brands.",
+            "link": "#",
+            "thumbnail": "logos/c0.png",
+            "mediaType": "image",
+            "media": "logos/c1.png",
+            "mediaItems": [
+                {
+                    "type": "image",
+                    "src": "logos/c1.png"
+                },
+                {
+                    "type": "image",
+                    "src": "logos/c2.png"
+                },
+                {
+                    "type": "image",
+                    "src": "logos/c3.png"
+                },
+                {
+                    "type": "image",
+                    "src": "logos/c4.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "logos/c5.jpg"
+                },
+                {
+                    "type": "image",
+                    "src": "logos/c6.png"
+                },
+                {
+                    "type": "image",
+                    "src": "logos/c7.jpg"
+                }
+            ]
+        },
+        {
+            "id": "proj-socioalmediapost",
+            "title": "Social Media Posts & Campaigns",
+            "category": "Social Media",
+            "description": "High-impact social media creatives, promotional flyers, and engaging layout designs.",
+            "link": "#",
+            "thumbnail": "socioal media post/s0.png",
+            "mediaType": "image",
+            "media": "socioal media post/s1.png",
+            "mediaItems": [
+                {
+                    "type": "image",
+                    "src": "socioal media post/s1.png"
+                },
+                {
+                    "type": "image",
+                    "src": "socioal media post/s2.png"
+                },
+                {
+                    "type": "image",
+                    "src": "socioal media post/s3.jpg"
+                }
+            ]
+        }
+    ]
 };
 /* INITIAL_CONFIG_END */
 
@@ -1432,8 +1942,18 @@ async function saveToCloud(dataToSave) {
   // Compress any project images
   if (Array.isArray(clone.projects)) {
     for (const pr of clone.projects) {
+      if (pr.thumbnail) {
+        pr.thumbnail = await compressDataUrl(pr.thumbnail, 900, 0.82);
+      }
       if (pr.media && pr.mediaType === 'image') {
         pr.media = await compressDataUrl(pr.media, 1000, 0.82);
+      }
+      if (Array.isArray(pr.mediaItems)) {
+        for (const item of pr.mediaItems) {
+          if (item && item.type === 'image' && item.src) {
+            item.src = await compressDataUrl(item.src, 1000, 0.82);
+          }
+        }
       }
     }
   }
@@ -1575,8 +2095,15 @@ disconnectCloudBtn.onclick = () => {
 // =================================================================
 function load() {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem('greenPortfolioData_v2') || localStorage.getItem('greenPortfolioData_v1');
     const parsed = saved ? JSON.parse(saved) : structuredClone(defaults);
+    
+    // If saved data still has old placeholders or no projects, upgrade to real projects
+    const hasOldPlaceholders = !parsed.projects || parsed.projects.length === 0 || parsed.projects.some(p => p.title === "Motion Identity" || p.title === "Digital Campaign");
+    if (hasOldPlaceholders) {
+      parsed.projects = structuredClone(defaults.projects);
+    }
+    
     if (!parsed.profile.linkedIn || parsed.profile.linkedIn === '#') {
       parsed.profile.linkedIn = defaults.profile.linkedIn;
     }
@@ -1770,78 +2297,388 @@ window.toggleVideoSound = (e, btn) => {
   }
 };
 
-window.openTheater = (id) => {
-  const p = data.projects.find(x => x.id === id);
-  if (!p || !p.media) return;
-  theaterTitle.textContent = p.title;
-  theaterDesc.textContent = p.description || '';
-  
-  const parsed = parseVideoSource(p.media);
-  if (parsed.type === 'youtube' || parsed.type === 'vimeo') {
-    theaterPlayerBox.innerHTML = `<iframe src="${escapeHTML(parsed.src)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:none"></iframe>`;
-  } else {
-    theaterPlayerBox.innerHTML = `<video src="${escapeHTML(p.media)}" controls autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000"></video>`;
+let currentTheaterProjectId = null;
+let currentTheaterIndex = 0;
+
+function getProjectMediaItems(p) {
+  let items = Array.isArray(p.mediaItems) && p.mediaItems.length ? p.mediaItems.slice() : [];
+  if (!items.length && p.media) {
+    items = [{ type: p.mediaType || 'image', src: p.media }];
   }
+  if (p.thumbnail && !items.some(it => it.src === p.thumbnail)) {
+    items.unshift({ type: 'image', src: p.thumbnail, isCover: true });
+  }
+  return items;
+}
+
+window.openTheater = (id, itemIndex = 0) => {
+  const p = data.projects.find(x => x.id === id);
+  if (!p) return;
+  const items = getProjectMediaItems(p);
+  if (!items.length) return;
+
+  currentTheaterProjectId = id;
+  currentTheaterIndex = Math.max(0, Math.min(items.length - 1, itemIndex));
+
+  renderTheaterItem(p, items, currentTheaterIndex);
   videoTheaterDialog.showModal();
 };
 
+function renderTheaterItem(p, items, index) {
+  const item = items[index];
+  if (!item || !item.src) return;
+
+  const titleEl = document.getElementById('theaterTitle');
+  const kickerEl = document.getElementById('theaterKicker');
+  const descEl = document.getElementById('theaterDesc');
+  const counterEl = document.getElementById('theaterCounter');
+  const container = document.getElementById('theaterMediaContainer');
+  const prevBtn = document.getElementById('theaterPrevBtn');
+  const nextBtn = document.getElementById('theaterNextBtn');
+  const thumbStrip = document.getElementById('theaterThumbStrip');
+
+  if (titleEl) titleEl.textContent = p.title;
+  if (kickerEl) kickerEl.textContent = item.type === 'video' ? 'Project Video' : 'Project Visual';
+  if (descEl) descEl.textContent = p.description || '';
+
+  if (counterEl) {
+    if (items.length > 1) {
+      counterEl.style.display = 'inline-block';
+      counterEl.textContent = `${index + 1} / ${items.length}`;
+    } else {
+      counterEl.style.display = 'none';
+    }
+  }
+
+  if (prevBtn) prevBtn.style.display = items.length > 1 ? 'grid' : 'none';
+  if (nextBtn) nextBtn.style.display = items.length > 1 ? 'grid' : 'none';
+
+  if (container) {
+    if (item.type === 'video') {
+      const parsed = parseVideoSource(item.src);
+      if (parsed.type === 'youtube' || parsed.type === 'vimeo') {
+        container.innerHTML = `<iframe src="${escapeHTML(parsed.src)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:none"></iframe>`;
+      } else {
+        container.innerHTML = `<video src="${escapeHTML(item.src)}" controls autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000"></video>`;
+      }
+    } else {
+      container.innerHTML = `<img src="${escapeHTML(item.src)}" alt="${escapeHTML(p.title)}" style="width:100%;height:100%;object-fit:contain;background:#000">`;
+    }
+  }
+
+  // Thumbnails ribbon
+  if (thumbStrip) {
+    if (items.length > 1) {
+      thumbStrip.style.display = 'flex';
+      thumbStrip.innerHTML = items.map((it, idx) => {
+        const activeClass = idx === index ? 'active' : '';
+        const preview = it.type === 'video'
+          ? `<video src="${escapeHTML(it.src)}" preload="metadata"></video>`
+          : `<img src="${escapeHTML(it.src)}" alt="Thumb ${idx + 1}">`;
+        return `<div class="theater-thumb-item ${activeClass}" onclick="openTheater('${p.id}', ${idx})" title="View item ${idx + 1}">${preview}</div>`;
+      }).join('');
+      const activeThumb = thumbStrip.children[index];
+      if (activeThumb) activeThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    } else {
+      thumbStrip.style.display = 'none';
+      thumbStrip.innerHTML = '';
+    }
+  }
+}
+
+window.slideTheater = (dir, e) => {
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  if (!currentTheaterProjectId) return;
+  const p = data.projects.find(x => x.id === currentTheaterProjectId);
+  if (!p) return;
+  const items = getProjectMediaItems(p);
+  if (items.length <= 1) return;
+
+  currentTheaterIndex += dir;
+  if (currentTheaterIndex < 0) currentTheaterIndex = items.length - 1;
+  if (currentTheaterIndex >= items.length) currentTheaterIndex = 0;
+
+  renderTheaterItem(p, items, currentTheaterIndex);
+};
+
 window.closeTheater = () => {
-  theaterPlayerBox.innerHTML = '';
+  const container = document.getElementById('theaterMediaContainer');
+  if (container) container.innerHTML = '';
+  currentTheaterProjectId = null;
   videoTheaterDialog.close();
 };
 
 videoTheaterDialog.addEventListener('close', () => {
-  theaterPlayerBox.innerHTML = '';
+  const container = document.getElementById('theaterMediaContainer');
+  if (container) container.innerHTML = '';
+  currentTheaterProjectId = null;
 });
 
-function updateMediaPreview() {
-  const file = pMediaFile.files[0];
-  const url = pMediaUrl.value.trim();
-  
-  if (file) {
-    mediaPreviewWrapper.style.display = 'block';
-    const isVideo = file.type.startsWith('video/');
-    if (isVideo) {
-      pMediaType.value = 'video';
-      mediaTypeBadge.textContent = 'Video (' + (file.size / (1024*1024)).toFixed(1) + ' MB)';
-      const objUrl = URL.createObjectURL(file);
-      mediaPreviewBox.innerHTML = `<video src="${objUrl}" controls autoplay muted loop playsinline style="max-height:220px;width:100%;object-fit:contain"></video>`;
-    } else {
-      pMediaType.value = 'image';
-      mediaTypeBadge.textContent = 'Image File';
-      const objUrl = URL.createObjectURL(file);
-      mediaPreviewBox.innerHTML = `<img src="${objUrl}" style="max-height:220px;width:100%;object-fit:contain">`;
-    }
+// Arrow key navigation for lightbox
+window.addEventListener('keydown', (e) => {
+  if (!videoTheaterDialog.open) return;
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    slideTheater(-1);
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    slideTheater(1);
+  }
+});
+
+// =================================================================
+// 4. MULTI-MEDIA CAROUSEL & RENDERING
+// =================================================================
+let editingMediaItems = [];
+
+function updateMediaItemsListUI() {
+  const container = document.getElementById('mediaItemsList');
+  const countBadge = document.getElementById('mediaCountBadge');
+  if (!container || !countBadge) return;
+
+  countBadge.textContent = `${editingMediaItems.length} item${editingMediaItems.length === 1 ? '' : 's'}`;
+
+  if (!editingMediaItems.length) {
+    container.style.display = 'none';
+    container.innerHTML = '';
     return;
   }
-  
-  if (url) {
-    mediaPreviewWrapper.style.display = 'block';
-    const isVideo = /\.(mp4|webm|mov|ogg|m4v)(\?.*)?$/i.test(url) || /(?:youtube\.com|youtu\.be|vimeo\.com)/i.test(url) || pMediaType.value === 'video';
-    if (isVideo) {
-      pMediaType.value = 'video';
-      mediaTypeBadge.textContent = 'Video Link';
-      const parsed = parseVideoSource(url);
+
+  container.style.display = 'grid';
+  container.innerHTML = editingMediaItems.map((item, idx) => {
+    let preview = '';
+    if (item.type === 'video') {
+      const parsed = parseVideoSource(item.src);
       if (parsed.type === 'youtube' || parsed.type === 'vimeo') {
-        mediaPreviewBox.innerHTML = `<iframe src="${escapeHTML(parsed.src)}" style="width:100%;height:100%;min-height:180px;border:none"></iframe>`;
+        preview = `<div style="display:grid;place-items:center;height:100%;font-size:11px;color:var(--green)">▶ ${escapeHTML(parsed.type.toUpperCase())}</div>`;
       } else {
-        mediaPreviewBox.innerHTML = `<video src="${escapeHTML(url)}" controls autoplay muted loop playsinline style="max-height:220px;width:100%;object-fit:contain"></video>`;
+        preview = `<video src="${escapeHTML(item.src)}" muted style="width:100%;height:100%;object-fit:cover"></video>`;
       }
     } else {
-      mediaTypeBadge.textContent = 'Image URL';
-      mediaPreviewBox.innerHTML = `<img src="${escapeHTML(url)}" style="max-height:220px;width:100%;object-fit:contain" onerror="this.parentElement.innerHTML='<div style=\\'color:var(--muted);font-size:12px\\'>Image preview not available</div>'">`;
+      preview = `<img src="${escapeHTML(item.src)}" style="width:100%;height:100%;object-fit:cover" onerror="this.src=''">`;
     }
-    return;
-  }
-  
-  mediaPreviewWrapper.style.display = 'none';
-  mediaPreviewBox.innerHTML = '';
+
+    return `
+      <div class="media-item-card">
+        ${preview}
+        <button type="button" class="media-item-del" onclick="removeMediaItem(${idx})" title="Remove item">✕</button>
+        <span class="media-item-type">${item.type.toUpperCase()} #${idx + 1}</span>
+      </div>`;
+  }).join('');
 }
 
-pMediaFile.onchange = updateMediaPreview;
-pMediaUrl.oninput = updateMediaPreview;
-pMediaType.onchange = () => {
-  if (pMediaUrl.value.trim() || pMediaFile.files[0]) updateMediaPreview();
+window.removeMediaItem = (idx) => {
+  editingMediaItems.splice(idx, 1);
+  updateMediaItemsListUI();
+};
+
+// Add multi-files to project
+const addMediaFilesBtn = document.getElementById('addMediaFilesBtn');
+const pMediaMultiFiles = document.getElementById('pMediaMultiFiles');
+if (addMediaFilesBtn && pMediaMultiFiles) {
+  addMediaFilesBtn.onclick = async () => {
+    const files = Array.from(pMediaMultiFiles.files);
+    if (!files.length) {
+      showToast('Select one or more files first');
+      return;
+    }
+    showToast('Loading files...');
+    for (const f of files) {
+      const isVid = f.type.startsWith('video/');
+      try {
+        const dataUrl = await fileToDataURL(f);
+        editingMediaItems.push({
+          type: isVid ? 'video' : 'image',
+          src: dataUrl,
+          name: f.name
+        });
+      } catch (e) {
+        console.error('Error reading file:', e);
+      }
+    }
+    pMediaMultiFiles.value = '';
+    updateMediaItemsListUI();
+    showToast(`Added ${files.length} item(s)!`);
+  };
+}
+
+// Add single URL to project
+const addMediaUrlBtn = document.getElementById('addMediaUrlBtn');
+const pMediaSingleUrl = document.getElementById('pMediaSingleUrl');
+const pMediaSingleType = document.getElementById('pMediaSingleType');
+if (addMediaUrlBtn && pMediaSingleUrl) {
+  addMediaUrlBtn.onclick = () => {
+    const url = pMediaSingleUrl.value.trim();
+    if (!url) {
+      showToast('Enter a URL first');
+      return;
+    }
+    let chosenType = pMediaSingleType.value;
+    if (chosenType === 'auto') {
+      const isVid = /\.(mp4|webm|mov|ogg|m4v)(\?.*)?$/i.test(url) || /(?:youtube\.com|youtu\.be|vimeo\.com)/i.test(url);
+      chosenType = isVid ? 'video' : 'image';
+    }
+    editingMediaItems.push({
+      type: chosenType,
+      src: url
+    });
+    pMediaSingleUrl.value = '';
+    updateMediaItemsListUI();
+    showToast('Added media item!');
+  };
+}
+
+// Interactive Carousel Navigation & Smooth Scrolling
+window.goToSlide = (projectId, index, e) => {
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  const slider = document.getElementById(`slider-${projectId}`);
+  if (!slider) return;
+  const slides = slider.querySelector('.media-slides');
+  if (!slides) return;
+  const count = parseInt(slider.dataset.count || '1', 10);
+  const targetIndex = Math.max(0, Math.min(count - 1, index));
+
+  slider.dataset.current = targetIndex;
+
+  const targetLeft = targetIndex * slides.clientWidth;
+  slides.scrollTo({ left: targetLeft, behavior: 'smooth' });
+
+  // Update dots indicator
+  const dots = slider.querySelectorAll('.media-dot');
+  dots.forEach((d, idx) => {
+    d.classList.toggle('active', idx === targetIndex);
+  });
+
+  // Handle video playback
+  const allVids = slider.querySelectorAll('video');
+  allVids.forEach((v, idx) => {
+    if (idx !== targetIndex) {
+      v.pause();
+    } else {
+      v.play().catch(() => {});
+    }
+  });
+};
+
+window.slideProject = (projectId, dir, e) => {
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  const slider = document.getElementById(`slider-${projectId}`);
+  if (!slider) return;
+  const count = parseInt(slider.dataset.count || '1', 10);
+  let current = parseInt(slider.dataset.current || '0', 10);
+
+  current += dir;
+  if (current < 0) current = count - 1;
+  if (current >= count) current = 0;
+
+  goToSlide(projectId, current);
+};
+
+window.initSliderEvents = (slider, projectId) => {
+  if (!slider || slider._sliderInited) return;
+  slider._sliderInited = true;
+
+  const slides = slider.querySelector('.media-slides');
+  if (!slides) return;
+
+  // 1. Native scroll listener (syncs dots and active index during trackpad / mobile swipe)
+  let scrollTimeout;
+  slides.addEventListener('scroll', () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      const slideWidth = slides.clientWidth || 1;
+      const activeIdx = Math.round(slides.scrollLeft / slideWidth);
+      const count = parseInt(slider.dataset.count || '1', 10);
+      const safeIdx = Math.max(0, Math.min(count - 1, activeIdx));
+
+      if (parseInt(slider.dataset.current || '0', 10) !== safeIdx) {
+        slider.dataset.current = safeIdx;
+        const dots = slider.querySelectorAll('.media-dot');
+        dots.forEach((d, idx) => d.classList.toggle('active', idx === safeIdx));
+
+        const allVids = slider.querySelectorAll('video');
+        allVids.forEach((v, idx) => {
+          if (idx !== safeIdx) v.pause();
+          else v.play().catch(() => {});
+        });
+      }
+    }, 40);
+  }, { passive: true });
+
+  // 2. Wheel event: allows scrolling vertically or horizontally with mouse wheel over the slider
+  let lastWheelTime = 0;
+  slider.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      return; // trackpad horizontal scroll works natively via scroll-snap
+    }
+    const now = Date.now();
+    if (Math.abs(e.deltaY) > 20 && now - lastWheelTime > 280) {
+      lastWheelTime = now;
+      e.preventDefault();
+      slideProject(projectId, e.deltaY > 0 ? 1 : -1);
+    }
+  }, { passive: false });
+
+  // 3. Mouse Click & Drag to scroll on desktop
+  let isDown = false;
+  let startX = 0;
+  let scrollLeftStart = 0;
+  let hasDragged = false;
+
+  slides.addEventListener('mousedown', (e) => {
+    if (e.target.closest('button, a, .media-nav-btn, .media-dots, .video-controls-overlay')) return;
+    isDown = true;
+    hasDragged = false;
+    startX = e.pageX - slides.offsetLeft;
+    scrollLeftStart = slides.scrollLeft;
+    slides.style.scrollBehavior = 'auto';
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    const x = e.pageX - slides.offsetLeft;
+    const walk = x - startX;
+    if (Math.abs(walk) > 8) {
+      hasDragged = true;
+    }
+    slides.scrollLeft = scrollLeftStart - walk;
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (!isDown) return;
+    isDown = false;
+    slides.style.scrollBehavior = 'smooth';
+    if (hasDragged) {
+      const slideWidth = slides.clientWidth || 1;
+      const index = Math.round(slides.scrollLeft / slideWidth);
+      goToSlide(projectId, index);
+    }
+  });
+
+  // 4. Click to open theater only if user was not dragging
+  slides.addEventListener('click', (e) => {
+    if (hasDragged) {
+      e.preventDefault();
+      e.stopPropagation();
+      hasDragged = false;
+      return;
+    }
+    if (e.target.closest('button, a, .media-nav-btn, .media-dots, .video-controls-overlay')) return;
+    const slide = e.target.closest('.media-slide');
+    if (slide) {
+      const idx = parseInt(slide.dataset.index || '0', 10);
+      openTheater(projectId, idx);
+    }
+  });
 };
 
 function renderProjects() {
@@ -1854,36 +2691,88 @@ function renderProjects() {
   const showEditControls = isOwner && document.body.classList.contains('editing');
   
   projectGrid.innerHTML = list.map(p => {
+    // Normalize media items array
+    let items = Array.isArray(p.mediaItems) && p.mediaItems.length ? p.mediaItems : [];
+    if (!items.length && p.media) {
+      items = [{ type: p.mediaType || 'image', src: p.media }];
+    }
+
     let media = '<div>No media yet</div>';
-    if (p.media) {
-      if (p.mediaType === 'video') {
-        const videoInfo = parseVideoSource(p.media);
+
+    if (items.length === 1) {
+      // Single media display
+      const item = items[0];
+      if (item.type === 'video') {
+        const videoInfo = parseVideoSource(item.src);
+        const posterAttr = p.thumbnail ? `poster="${escapeHTML(p.thumbnail)}"` : '';
         if (videoInfo.type === 'youtube' || videoInfo.type === 'vimeo') {
           media = `
             <iframe src="${escapeHTML(videoInfo.src)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>
             <div class="video-badge"><svg width="10" height="10" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Video</div>
             <div class="video-controls-overlay">
-              <button type="button" class="video-action-btn" onclick="openTheater('${p.id}')" title="Watch in theater mode">
+              <button type="button" class="video-action-btn" onclick="openTheater('${p.id}', 0)" title="Watch in theater mode">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
               </button>
             </div>`;
         } else {
           media = `
-            <video src="${escapeHTML(p.media)}" muted loop playsinline autoplay preload="metadata" onclick="openTheater('${p.id}')"></video>
+            <video src="${escapeHTML(item.src)}" ${posterAttr} muted loop playsinline autoplay preload="metadata" onclick="openTheater('${p.id}', 0)"></video>
             <div class="video-badge"><svg width="10" height="10" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Video</div>
             <div class="video-controls-overlay">
               <button type="button" class="video-action-btn sound-toggle-btn" onclick="toggleVideoSound(event, this)" title="Unmute sound">
                 <svg class="icon-mute" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
                 <svg class="icon-sound" style="display:none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
               </button>
-              <button type="button" class="video-action-btn" onclick="openTheater('${p.id}')" title="Watch in theater mode">
+              <button type="button" class="video-action-btn" onclick="openTheater('${p.id}', 0)" title="Watch in theater mode">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
               </button>
             </div>`;
         }
       } else {
-        media = `<img src="${escapeHTML(p.media)}" alt="${escapeHTML(p.title)}" loading="lazy">`;
+        const displaySrc = p.thumbnail || item.src;
+        media = `<img src="${escapeHTML(displaySrc)}" alt="${escapeHTML(p.title)}" loading="lazy" onclick="openTheater('${p.id}', 0)" style="cursor:pointer">`;
       }
+    } else if (items.length > 1) {
+      // Multi-media Interactive Carousel
+      // If a custom thumbnail was set and is not already the first slide, place it prominently as slide 0
+      let carouselItems = items.slice();
+      if (p.thumbnail && !carouselItems.some(it => it.src === p.thumbnail)) {
+        carouselItems.unshift({ type: 'image', src: p.thumbnail, isCover: true });
+      }
+
+      const slidesHtml = carouselItems.map((item, idx) => {
+        let slideInner = '';
+        if (item.type === 'video') {
+          const videoInfo = parseVideoSource(item.src);
+          const posterAttr = p.thumbnail ? `poster="${escapeHTML(p.thumbnail)}"` : '';
+          if (videoInfo.type === 'youtube' || videoInfo.type === 'vimeo') {
+            slideInner = `<iframe src="${escapeHTML(videoInfo.src)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
+          } else {
+            slideInner = `<video src="${escapeHTML(item.src)}" ${posterAttr} muted loop playsinline autoplay preload="metadata"></video>`;
+          }
+        } else {
+          slideInner = `<img src="${escapeHTML(item.src)}" alt="${escapeHTML(p.title)}" loading="lazy">`;
+        }
+        return `<div class="media-slide" data-index="${idx}">${slideInner}</div>`;
+      }).join('');
+
+      const dotsHtml = carouselItems.map((_, idx) => `
+        <button type="button" class="media-dot ${idx === 0 ? 'active' : ''}" onclick="goToSlide('${p.id}', ${idx}, event)" title="Item ${idx + 1}" aria-label="Item ${idx + 1}"></button>
+      `).join('');
+
+      media = `
+        <div class="media-slider" id="slider-${p.id}" data-count="${carouselItems.length}" data-current="0">
+          <div class="media-slides">${slidesHtml}</div>
+          <button type="button" class="media-nav-btn prev" onclick="slideProject('${p.id}', -1, event)" title="Previous media">‹</button>
+          <button type="button" class="media-nav-btn next" onclick="slideProject('${p.id}', 1, event)" title="Next media">›</button>
+          <div class="media-dots">${dotsHtml}</div>
+          <div class="media-count-badge">📷 ${carouselItems.length} items</div>
+          <div class="video-controls-overlay">
+            <button type="button" class="video-action-btn" onclick="openTheater('${p.id}', 0)" title="Expand media gallery">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            </button>
+          </div>
+        </div>`;
     }
     
     // Only render edit buttons into DOM if owner is in editing mode
@@ -1903,6 +2792,12 @@ function renderProjects() {
       </div>
     </article>`;
   }).join('');
+
+  // Attach interactive slider listeners
+  document.querySelectorAll('.media-slider').forEach(slider => {
+    const id = slider.id.replace('slider-', '');
+    initSliderEvents(slider, id);
+  });
 }
 
 // =================================================================
@@ -1961,19 +2856,91 @@ saveProfile.onclick = async (e) => {
   showToast('Profile updated!');
 };
 
+// Thumbnail State & Handler
+let currentProjectThumbnail = '';
+
+function updateThumbnailUI(thumbUrl) {
+  currentProjectThumbnail = thumbUrl || '';
+  const wrap = document.getElementById('thumbPreviewWrap');
+  const img = document.getElementById('thumbPreviewImg');
+  const badge = document.getElementById('thumbnailBadge');
+  if (!wrap || !img || !badge) return;
+
+  if (currentProjectThumbnail) {
+    wrap.style.display = 'flex';
+    img.src = currentProjectThumbnail;
+    badge.textContent = 'Custom Set';
+    badge.style.borderColor = 'rgba(70,245,138,.4)';
+    badge.style.color = 'var(--green)';
+  } else {
+    wrap.style.display = 'none';
+    img.src = '';
+    badge.textContent = 'Auto / Default';
+    badge.style.borderColor = 'var(--line)';
+    badge.style.color = '#b7c2bb';
+  }
+}
+
+const pThumbFile = document.getElementById('pThumbFile');
+const pThumbUrl = document.getElementById('pThumbUrl');
+const clearThumbBtn = document.getElementById('clearThumbBtn');
+
+if (pThumbFile) {
+  pThumbFile.onchange = async () => {
+    const file = pThumbFile.files[0];
+    if (file) {
+      try {
+        const compressed = await fileToDataURL(file);
+        updateThumbnailUI(compressed);
+        if (pThumbUrl) pThumbUrl.value = '';
+      } catch (e) {
+        console.error('Failed to read thumbnail:', e);
+      }
+    }
+  };
+}
+
+if (pThumbUrl) {
+  pThumbUrl.oninput = () => {
+    const val = pThumbUrl.value.trim();
+    if (val) {
+      updateThumbnailUI(val);
+      if (pThumbFile) pThumbFile.value = '';
+    } else {
+      updateThumbnailUI('');
+    }
+  };
+}
+
+if (clearThumbBtn) {
+  clearThumbBtn.onclick = () => {
+    if (pThumbFile) pThumbFile.value = '';
+    if (pThumbUrl) pThumbUrl.value = '';
+    updateThumbnailUI('');
+  };
+}
+
 addProjectBtn.onclick = () => {
   if (!isOwner) return;
-  projectId.value = '';
-  projectDialogTitle.textContent = 'Add project';
-  pTitle.value = '';
-  pCategory.value = '';
-  pDescription.value = '';
-  pLink.value = '';
-  pMediaType.value = 'image';
-  pMediaFile.value = '';
-  pMediaUrl.value = '';
-  mediaPreviewWrapper.style.display = 'none';
-  mediaPreviewBox.innerHTML = '';
+  const pIdEl = document.getElementById('projectId');
+  if (pIdEl) pIdEl.value = '';
+  const dTitleEl = document.getElementById('projectDialogTitle');
+  if (dTitleEl) dTitleEl.textContent = 'Add project';
+  const pTitleEl = document.getElementById('pTitle');
+  if (pTitleEl) pTitleEl.value = '';
+  const pCatEl = document.getElementById('pCategory');
+  if (pCatEl) pCatEl.value = '';
+  const pDescEl = document.getElementById('pDescription');
+  if (pDescEl) pDescEl.value = '';
+  const pLinkEl = document.getElementById('pLink');
+  if (pLinkEl) pLinkEl.value = '';
+  editingMediaItems = [];
+  if (pMediaMultiFiles) pMediaMultiFiles.value = '';
+  if (pMediaSingleUrl) pMediaSingleUrl.value = '';
+  if (pThumbFile) pThumbFile.value = '';
+  if (pThumbUrl) pThumbUrl.value = '';
+  updateThumbnailUI('');
+  updateMediaItemsListUI();
   projectDialog.showModal();
 };
 
@@ -1981,88 +2948,88 @@ window.editProject = (id) => {
   if (!isOwner) return;
   const p = data.projects.find(x => x.id === id);
   if (!p) return;
-  projectId.value = p.id;
-  projectDialogTitle.textContent = 'Edit project';
-  pTitle.value = p.title;
-  pCategory.value = p.category;
-  pDescription.value = p.description || '';
-  pLink.value = p.link || '';
-  pMediaType.value = p.mediaType || 'image';
-  pMediaFile.value = '';
-  pMediaUrl.value = (p.media && !p.media.startsWith('data:')) ? p.media : '';
-  
-  if (p.media) {
-    mediaPreviewWrapper.style.display = 'block';
-    mediaTypeBadge.textContent = p.mediaType === 'video' ? 'Current Video' : 'Current Image';
-    if (p.mediaType === 'video') {
-      const parsed = parseVideoSource(p.media);
-      if (parsed.type === 'youtube' || parsed.type === 'vimeo') {
-        mediaPreviewBox.innerHTML = `<iframe src="${escapeHTML(parsed.src)}" style="width:100%;height:100%;min-height:180px;border:none"></iframe>`;
-      } else {
-        mediaPreviewBox.innerHTML = `<video src="${escapeHTML(p.media)}" controls autoplay muted loop playsinline style="max-height:220px;width:100%;object-fit:contain"></video>`;
-      }
-    } else {
-      mediaPreviewBox.innerHTML = `<img src="${escapeHTML(p.media)}" style="max-height:220px;width:100%;object-fit:contain">`;
-    }
-  } else {
-    mediaPreviewWrapper.style.display = 'none';
-    mediaPreviewBox.innerHTML = '';
-  }
+  const pIdEl = document.getElementById('projectId');
+  if (pIdEl) pIdEl.value = p.id;
+  const dTitleEl = document.getElementById('projectDialogTitle');
+  if (dTitleEl) dTitleEl.textContent = 'Edit project';
+  const pTitleEl = document.getElementById('pTitle');
+  if (pTitleEl) pTitleEl.value = p.title || '';
+  const pCatEl = document.getElementById('pCategory');
+  if (pCatEl) pCatEl.value = p.category || '';
+  const pDescEl = document.getElementById('pDescription');
+  if (pDescEl) pDescEl.value = p.description || '';
+  const pLinkEl = document.getElementById('pLink');
+  if (pLinkEl) pLinkEl.value = p.link || '';
+
+  // Load thumbnail
+  if (pThumbFile) pThumbFile.value = '';
+  if (pThumbUrl) pThumbUrl.value = (p.thumbnail && !p.thumbnail.startsWith('data:')) ? p.thumbnail : '';
+  updateThumbnailUI(p.thumbnail || '');
+
+  // Load existing media items
+  editingMediaItems = Array.isArray(p.mediaItems) && p.mediaItems.length
+    ? JSON.parse(JSON.stringify(p.mediaItems))
+    : (p.media ? [{ type: p.mediaType || 'image', src: p.media }] : []);
+
+  if (pMediaMultiFiles) pMediaMultiFiles.value = '';
+  if (pMediaSingleUrl) pMediaSingleUrl.value = '';
+  updateMediaItemsListUI();
   projectDialog.showModal();
 };
 
 saveProject.onclick = async (e) => {
-  e.preventDefault();
-  if (!isOwner) return;
-  if (!pTitle.value.trim() || !pCategory.value.trim()) return;
-  const id = projectId.value;
-  const old = id ? data.projects.find(x => x.id === id) : null;
-  let media = old?.media || '';
-  let mediaType = pMediaType.value;
-
-  const file = pMediaFile.files[0];
-  if (file) {
-    if (file.type.startsWith('video/')) {
-      mediaType = 'video';
-    } else if (file.type.startsWith('image/')) {
-      mediaType = 'image';
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      const proceed = confirm(`Notice: This video file is ${(file.size / (1024 * 1024)).toFixed(1)}MB. Browser local storage is limited to ~5MB.\n\nTip: For large videos, it is recommended to place the video in your portfolio folder and enter its filename (e.g. "myvideo.mp4") or host it on Vimeo/YouTube.\n\nDo you want to continue embedding this file anyway?`);
-      if (!proceed) return;
-    }
-
-    try {
-      media = await fileToDataURL(file);
-    } catch (err) {
-      alert('Could not read file. Please try another video format or local filename.');
+  if (e) e.preventDefault();
+  try {
+    if (!isOwner) {
+      alert('Please log in as owner to save projects.');
       return;
     }
-  } else if (pMediaUrl.value.trim()) {
-    media = pMediaUrl.value.trim();
-    if (/\.(mp4|webm|mov|ogg|m4v)(\?.*)?$/i.test(media) || /(?:youtube\.com|youtu\.be|vimeo\.com)/i.test(media)) {
-      mediaType = 'video';
+    const pTitleEl = document.getElementById('pTitle');
+    const pCatEl = document.getElementById('pCategory');
+    const titleVal = (pTitleEl ? pTitleEl.value : '').trim();
+    const categoryVal = (pCatEl ? pCatEl.value : '').trim();
+
+    if (!titleVal || !categoryVal) {
+      alert('Please enter a project title and category.');
+      return;
     }
+
+    const pIdEl = document.getElementById('projectId');
+    const id = pIdEl ? pIdEl.value : '';
+    const old = id ? data.projects.find(x => x.id === id) : null;
+
+    // Determine primary media item for backwards compatibility
+    const primaryItem = editingMediaItems[0];
+    const primaryMedia = primaryItem ? primaryItem.src : (old?.media || '');
+    const primaryType = primaryItem ? primaryItem.type : 'image';
+
+    const pDescEl = document.getElementById('pDescription');
+    const pLinkEl = document.getElementById('pLink');
+
+    const item = {
+      id: id || crypto.randomUUID(),
+      title: titleVal,
+      category: categoryVal,
+      description: (pDescEl ? pDescEl.value : '').trim(),
+      link: (pLinkEl ? pLinkEl.value.trim() : '') || '#',
+      thumbnail: currentProjectThumbnail || '',
+      mediaType: primaryType,
+      media: primaryMedia,
+      mediaItems: editingMediaItems.slice()
+    };
+
+    if (old) Object.assign(old, item);
+    else data.projects.unshift(item);
+
+    activeFilter = 'All';
+    persist();
+    render();
+    projectDialog.close();
+    showToast(id ? 'Project updated!' : 'New project added!');
+  } catch (err) {
+    console.error('Error saving project:', err);
+    alert('Failed to save project: ' + (err.message || err));
   }
-
-  const item = {
-    id: id || crypto.randomUUID(),
-    title: pTitle.value.trim(),
-    category: pCategory.value.trim(),
-    description: pDescription.value.trim(),
-    link: pLink.value.trim() || '#',
-    mediaType: mediaType,
-    media
-  };
-  if (old) Object.assign(old, item);
-  else data.projects.unshift(item);
-
-  activeFilter = 'All';
-  persist();
-  render();
-  projectDialog.close();
-  showToast(id ? 'Project updated!' : 'New project added!');
 };
 
 window.deleteProject = (id) => {
