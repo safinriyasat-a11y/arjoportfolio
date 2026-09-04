@@ -304,10 +304,10 @@
   .guide-step code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px;font-size:12px}
 
   #toast{
-    position:fixed;left:50%;bottom:92px;z-index:100;transform:translate(-50%,16px);
-    padding:11px 18px;border:1px solid rgba(255,255,255,.12);border-radius:999px;
-    background:rgba(14,18,15,.94);backdrop-filter:blur(18px);
-    color:#f4f7f5;font-size:13px;box-shadow:0 15px 50px rgba(0,0,0,.45);
+    position:fixed;left:50%;bottom:92px;z-index:999999;transform:translate(-50%,16px);
+    padding:11px 18px;border:1px solid rgba(255,255,255,.18);border-radius:999px;
+    background:rgba(14,18,15,.96);backdrop-filter:blur(22px);
+    color:#f4f7f5;font-size:13px;box-shadow:0 15px 50px rgba(0,0,0,.65);
     opacity:0;pointer-events:none;transition:opacity .3s var(--ease),transform .3s var(--ease);
   }
   #toast.show{opacity:1;transform:translate(-50%,0)}
@@ -730,8 +730,16 @@ const FIREBASE_CONFIG_KEY = 'greenPortfolio_firebaseConfig';
 // SHA-256 hash for owner passcode
 const DEFAULT_PASS_HASH = '653beba9dc79758ba99ad7594116ffd51c08b24ac867ac00b48e06471d6de949';
 
-// Active Firebase Cloud Database Configuration (null by default)
-const DEFAULT_FIREBASE_CONFIG = null;
+// Active Firebase Cloud Database Configuration
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCcVw59o1yhwriQjSDlzWiLDYm9x98pv_0",
+  authDomain: "safin-portfolio.firebaseapp.com",
+  projectId: "safin-portfolio",
+  storageBucket: "safin-portfolio.firebasestorage.app",
+  messagingSenderId: "1019530174523",
+  appId: "1:1019530174523:web:92b9fa044bf41dfe6e7c1e",
+  measurementId: "G-EBTC4X8798"
+};
 
 const defaults = {
   profile: {
@@ -1209,17 +1217,50 @@ saveCloudConfigBtn.onclick = async () => {
 };
 
 pushToCloudBtn.onclick = async () => {
+  pushToCloudBtn.disabled = true;
+  pushToCloudBtn.textContent = 'Pushing... ⏳';
+  cloudFeedbackMsg.style.display = 'block';
+  cloudFeedbackMsg.style.background = 'rgba(255,255,255,.05)';
+  cloudFeedbackMsg.style.color = 'var(--text)';
+  cloudFeedbackMsg.style.border = '1px solid var(--line)';
+  cloudFeedbackMsg.innerHTML = 'Connecting to Firebase &amp; saving data... ⏳';
+
   if (!cloudDb) {
-    alert('Please connect your Firebase configuration first.');
+    await initCloudDb();
+  }
+  if (!cloudDb) {
+    pushToCloudBtn.disabled = false;
+    pushToCloudBtn.textContent = 'Push Data ☁️';
+    cloudFeedbackMsg.style.background = 'rgba(255,95,103,.15)';
+    cloudFeedbackMsg.style.color = '#ff8f94';
+    cloudFeedbackMsg.innerHTML = '⚠️ Firebase is not connected yet. Click <b>Connect &amp; Sync 🚀</b> first!';
     return;
   }
   try {
     showToast('☁️ Pushing local data to cloud...');
     await saveToCloud(data);
+    pushToCloudBtn.textContent = 'Uploaded! ✅';
     showToast('✅ Cloud database updated with local data!');
-    updateCloudStatusUI('connected', '✅ Local data pushed successfully to Cloud Database.');
+    updateCloudStatusUI('connected', '🎉 <b>Success!</b> Your portfolio data is now stored in Google Firebase and will show on your phone and any other device!');
+    setTimeout(() => {
+      pushToCloudBtn.disabled = false;
+      pushToCloudBtn.textContent = 'Push Data ☁️';
+    }, 3000);
   } catch (err) {
-    alert(`Could not push to cloud: ${err.message}`);
+    console.error(err);
+    pushToCloudBtn.disabled = false;
+    pushToCloudBtn.textContent = 'Push Data ☁️';
+    if (err.code === 'permission-denied') {
+      cloudFeedbackMsg.style.display = 'block';
+      cloudFeedbackMsg.style.background = 'rgba(255,95,103,.15)';
+      cloudFeedbackMsg.style.color = '#ffd8da';
+      cloudFeedbackMsg.innerHTML = '⚠️ <b>Firebase Permission Denied</b>: Go to <a href="https://console.firebase.google.com" target="_blank" style="color:var(--green)">Firebase Console</a> &gt; Firestore Database &gt; <b>Rules</b> tab, and set: <br><pre style="margin:6px 0;background:rgba(0,0,0,.5);padding:6px;border-radius:6px">allow read, write: if true;</pre>Then click Publish!';
+    } else {
+      cloudFeedbackMsg.style.display = 'block';
+      cloudFeedbackMsg.style.background = 'rgba(255,95,103,.15)';
+      cloudFeedbackMsg.style.color = '#ffd8da';
+      cloudFeedbackMsg.innerHTML = `⚠️ <b>Upload Error:</b> ${escapeHTML(err.message)}`;
+    }
   }
 };
 
