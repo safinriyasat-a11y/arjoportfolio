@@ -37,70 +37,113 @@
     position:relative;
   }
 
-  /* Interactive Scroll-Driven Background Gradients */
+  /* Exact Monopo-Style Fluid Arc Gradient in Dark Green & Pitch Black */
   .ambient-bg{
     position:fixed;
     inset:0;
     pointer-events:none;
     z-index:-1;
     overflow:hidden;
-    background:
-      radial-gradient(circle at 50% 50%, #060907 0%, #030504 100%);
+    background:#010402;
   }
-  .ambient-orb{
+  /* Primary curved ribbon: Left wave sweeping from top-left into center */
+  .arc-wave-left{
     position:absolute;
-    border-radius:50%;
-    filter:blur(95px);
-    opacity:.58;
+    width:min(900px, 95vw);
+    height:min(1100px, 120vh);
+    top:-15%;
+    left:-22%;
+    border-radius:48% 52% 60% 40% / 55% 45% 55% 45%;
+    background:
+      radial-gradient(circle at 60% 50%, rgba(55,245,125,.65) 0%, rgba(20,180,85,.45) 28%, rgba(8,80,38,.40) 50%, rgba(2,30,14,.25) 70%, transparent 88%);
+    filter:blur(52px);
+    mix-blend-mode:screen;
     will-change:transform;
-    transition:transform .22s cubic-bezier(.16,1,.3,1);
+    transform:translate3d(calc(var(--scroll-percent, 0) * -120px), calc(var(--scroll-percent, 0) * 260px), 0) rotate(calc(-14deg + var(--scroll-percent, 0) * 18deg));
+    transition:transform .18s cubic-bezier(.16,1,.3,1);
+    animation:arcWaveFloatLeft 18s ease-in-out infinite alternate;
   }
-  .orb-1{
-    width:min(680px,80vw);
-    height:min(680px,80vw);
-    background:radial-gradient(circle,rgba(70,245,138,.24) 0%,rgba(22,201,106,.08) 55%,transparent 72%);
-    top:-8%;
-    right:-10%;
-    transform:translate3d(calc(var(--scroll-percent, 0) * -220px), calc(var(--scroll-percent, 0) * 440px), 0) rotate(calc(var(--scroll-percent, 0) * 55deg));
+  /* Secondary curved ribbon: Right arch sweeping along the right margin like in the image */
+  .arc-wave-right{
+    position:absolute;
+    width:min(820px, 90vw);
+    height:min(1050px, 115vh);
+    top:-5%;
+    right:-24%;
+    border-radius:52% 48% 42% 58% / 48% 54% 46% 52%;
+    background:
+      radial-gradient(circle at 40% 50%, rgba(55,245,125,.60) 0%, rgba(20,180,85,.42) 28%, rgba(8,80,38,.38) 52%, rgba(2,30,14,.22) 72%, transparent 88%);
+    filter:blur(54px);
+    mix-blend-mode:screen;
+    will-change:transform;
+    transform:translate3d(calc(var(--scroll-percent, 0) * 140px), calc(var(--scroll-percent, 0) * -220px), 0) rotate(calc(16deg - var(--scroll-percent, 0) * 20deg));
+    transition:transform .18s cubic-bezier(.16,1,.3,1);
+    animation:arcWaveFloatRight 20s ease-in-out infinite alternate;
+  }
+  /* Glowing inner core ring mimicking the bright halo rim in the reference image */
+  .arc-core-glow{
+    position:absolute;
+    width:min(600px, 70vw);
+    height:min(700px, 80vh);
+    top:18%;
+    left:5%;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(110,255,165,.35) 0%, rgba(40,210,105,.18) 40%, transparent 72%);
+    filter:blur(44px);
+    mix-blend-mode:screen;
+    will-change:transform;
+    transform:translate3d(calc(var(--scroll-percent, 0) * -80px), calc(var(--scroll-percent, 0) * 180px), 0);
+    transition:transform .2s cubic-bezier(.16,1,.3,1);
     animation:ambientFloat1 16s ease-in-out infinite alternate;
   }
-  .orb-2{
-    width:min(780px,85vw);
-    height:min(780px,85vw);
-    background:radial-gradient(circle,rgba(22,201,106,.18) 0%,rgba(70,245,138,.05) 55%,transparent 75%);
-    top:30%;
-    left:-18%;
-    transform:translate3d(calc(var(--scroll-percent, 0) * 320px), calc(var(--scroll-percent, 0) * -280px), 0) scale(calc(1 + var(--scroll-percent, 0) * .25));
-    animation:ambientFloat2 20s ease-in-out infinite alternate;
+  /* Bottom organic contour */
+  .arc-bottom-drift{
+    position:absolute;
+    width:min(950px, 100vw);
+    height:min(650px, 75vh);
+    bottom:-20%;
+    left:10%;
+    border-radius:50%;
+    background:radial-gradient(ellipse at center, rgba(15,120,55,.45) 0%, rgba(5,50,22,.25) 45%, transparent 75%);
+    filter:blur(68px);
+    mix-blend-mode:screen;
+    will-change:transform;
+    transform:translate3d(calc(var(--scroll-percent, 0) * 160px), calc(var(--scroll-percent, 0) * -180px), 0);
+    transition:transform .22s cubic-bezier(.16,1,.3,1);
+    animation:ambientFloat2 22s ease-in-out infinite alternate;
   }
-  .orb-3{
-    width:min(600px,72vw);
-    height:min(600px,72vw);
-    background:radial-gradient(circle,rgba(70,245,138,.16) 0%,rgba(10,50,25,.08) 60%,transparent 78%);
-    bottom:-12%;
-    right:8%;
-    transform:translate3d(calc(var(--scroll-percent, 0) * -240px), calc(var(--scroll-percent, 0) * -320px), 0) scale(calc(0.92 + var(--scroll-percent, 0) * .3));
-    animation:ambientFloat1 18s ease-in-out infinite alternate-reverse;
-  }
-  .ambient-grid{
+  /* Tactile fine grain texture matching high-fashion editorial reference */
+  .ambient-grain{
     position:absolute;
     inset:0;
-    background-image:radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
-    background-size:38px 38px;
-    opacity:.32;
-    mask-image:radial-gradient(circle at center, black 40%, transparent 90%);
-    -webkit-mask-image:radial-gradient(circle at center, black 40%, transparent 90%);
+    width:100%;
+    height:100%;
+    opacity:.35;
+    pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.85'/%3E%3C/svg%3E");
+    background-repeat:repeat;
+    mix-blend-mode:overlay;
   }
 
+  @keyframes arcWaveFloatLeft{
+    0%{border-radius:48% 52% 60% 40% / 55% 45% 55% 45%;filter:blur(50px)}
+    50%{border-radius:54% 46% 45% 55% / 46% 54% 46% 54%;filter:blur(58px)}
+    100%{border-radius:46% 54% 56% 44% / 52% 48% 52% 48%;filter:blur(48px)}
+  }
+  @keyframes arcWaveFloatRight{
+    0%{border-radius:52% 48% 42% 58% / 48% 54% 46% 52%;filter:blur(52px)}
+    50%{border-radius:45% 55% 58% 42% / 55% 45% 55% 45%;filter:blur(60px)}
+    100%{border-radius:50% 50% 46% 54% / 47% 53% 47% 53%;filter:blur(49px)}
+  }
   @keyframes ambientFloat1{
-    0%{filter:blur(95px);opacity:.55}
-    50%{filter:blur(110px);opacity:.68}
-    100%{filter:blur(90px);opacity:.52}
+    0%{opacity:.70;filter:blur(44px)}
+    50%{opacity:.92;filter:blur(52px)}
+    100%{opacity:.68;filter:blur(42px)}
   }
   @keyframes ambientFloat2{
-    0%{filter:blur(100px);opacity:.50}
-    50%{filter:blur(85px);opacity:.65}
-    100%{filter:blur(105px);opacity:.48}
+    0%{opacity:.60;filter:blur(68px)}
+    50%{opacity:.80;filter:blur(60px)}
+    100%{opacity:.58;filter:blur(72px)}
   }
   button,input,textarea,select{font:inherit}
   button{cursor:pointer}
@@ -156,20 +199,106 @@
   .lead{max-width:690px;color:var(--muted);font-size:clamp(17px,2vw,22px);line-height:1.6}
   .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
 
-  .portrait-wrap{display:flex;justify-content:center}
-  .portrait-card{
-    width:min(100%,390px);aspect-ratio:4/5;border-radius:38px;overflow:hidden;
-    position:relative;background:linear-gradient(145deg,#0d1a12,#050706);
-    border:1px solid var(--line);box-shadow:var(--shadow);
+  .portrait-wrap{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
   }
-  .portrait-card img{width:100%;height:100%;object-fit:cover;display:none}
+  .portrait-card{
+    width:min(100%,360px);
+    aspect-ratio:1/1;
+    border-radius:50%;
+    overflow:hidden;
+    position:relative;
+    background:linear-gradient(145deg,#0d1a12,#050706);
+    border:2px solid rgba(70,245,138,.28);
+    box-shadow:0 25px 70px rgba(0,0,0,.6), 0 0 35px rgba(70,245,138,.12);
+    transition:transform .45s var(--ease),border-color .4s ease,box-shadow .45s ease;
+    cursor:pointer;
+  }
+  .portrait-card:hover{
+    transform:translateY(-6px) scale(1.03);
+    border-color:rgba(70,245,138,.65);
+    box-shadow:0 35px 90px rgba(0,0,0,.7), 0 0 55px rgba(70,245,138,.28);
+  }
+  .portrait-card img{
+    width:100%;height:100%;object-fit:cover;display:none;
+    border-radius:50%;
+    transition:transform .65s var(--ease);
+  }
+  .portrait-card:hover img{
+    transform:scale(1.05);
+  }
   .portrait-placeholder{
-    height:100%;display:grid;place-items:center;text-align:center;padding:35px;color:var(--muted)
+    height:100%;display:grid;place-items:center;text-align:center;padding:35px;color:var(--muted);
+    border-radius:50%;
   }
   .portrait-placeholder b{display:block;color:var(--text);font-size:28px;margin-bottom:8px}
   .portrait-card::after{
     content:"";position:absolute;inset:auto -30% -35% 25%;height:55%;
     background:radial-gradient(circle,rgba(66,245,129,.22),transparent 60%);pointer-events:none;
+  }
+
+  /* Interactive Chat Bubble on Hover */
+  .portrait-bubble{
+    position:absolute;
+    top:-22px;
+    right:20px;
+    z-index:20;
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    padding:11px 18px;
+    border-radius:999px;
+    background:rgba(10,18,13,.88);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border:1px solid rgba(70,245,138,.45);
+    box-shadow:0 14px 40px rgba(0,0,0,.6), 0 0 25px rgba(70,245,138,.25);
+    color:#ffffff;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:-.01em;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(12px) scale(0.92);
+    transform-origin:bottom right;
+    transition:opacity .32s var(--ease),transform .32s var(--ease),visibility .32s ease;
+    pointer-events:none;
+    white-space:nowrap;
+  }
+  /* Little chat bubble tail */
+  .portrait-bubble::after{
+    content:"";
+    position:absolute;
+    bottom:-7px;
+    right:36px;
+    width:12px;
+    height:12px;
+    background:rgba(10,18,13,.95);
+    border-right:1px solid rgba(70,245,138,.45);
+    border-bottom:1px solid rgba(70,245,138,.45);
+    transform:rotate(45deg);
+  }
+  /* Animated wave hand inside bubble */
+  .portrait-bubble .wave-hand{
+    display:inline-block;
+    animation:waveHand 1.8s ease-in-out infinite;
+    transform-origin:70% 70%;
+  }
+  .portrait-wrap:hover .portrait-bubble{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0) scale(1);
+  }
+
+  @keyframes waveHand{
+    0%,100%{transform:rotate(0deg)}
+    20%{transform:rotate(14deg)}
+    40%{transform:rotate(-10deg)}
+    60%{transform:rotate(14deg)}
+    80%{transform:rotate(-4deg)}
   }
 
   section{padding:82px 0}
@@ -434,8 +563,8 @@
   }
 
   @media(max-width:800px){
-    .nav-links{display:none}.hero{grid-template-columns:1fr;padding-top:55px}.portrait-wrap{justify-content:start}
-    .portrait-card{width:300px}.section-head{display:block}.section-note{margin-top:14px}
+    .nav-links{display:none}.hero{grid-template-columns:1fr;padding-top:55px}.portrait-wrap{justify-content:center}
+    .portrait-card{width:min(280px,78vw);aspect-ratio:1/1}.section-head{display:block}.section-note{margin-top:14px}
     .project{grid-column:1/-1}.stats{grid-template-columns:1fr}
     .tools-compact-wrap{grid-template-columns:1fr;gap:20px}
     footer{display:flex;flex-direction:column;align-items:start;gap:12px}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}
@@ -444,12 +573,13 @@
 </style>
 </head>
 <body>
-<!-- Interactive Scroll-Driven Background Gradients -->
+<!-- Exact Monopo-Style Fluid Arc Gradient in Dark Green & Pitch Black -->
 <div class="ambient-bg" aria-hidden="true">
-  <div class="ambient-orb orb-1"></div>
-  <div class="ambient-orb orb-2"></div>
-  <div class="ambient-orb orb-3"></div>
-  <div class="ambient-grid"></div>
+  <div class="arc-wave-left"></div>
+  <div class="arc-wave-right"></div>
+  <div class="arc-core-glow"></div>
+  <div class="arc-bottom-drift"></div>
+  <div class="ambient-grain"></div>
 </div>
 <nav>
   <div class="shell nav-inner">
@@ -487,7 +617,12 @@
     </div>
 
     <div class="portrait-wrap">
-      <div class="portrait-card">
+      <!-- Interactive Speech Bubble on Hover -->
+      <div class="portrait-bubble" id="portraitBubble" aria-hidden="true">
+        <span class="wave-hand">👋</span>
+        <span>Hi, how are you?</span>
+      </div>
+      <div class="portrait-card" id="portraitCard">
         <img id="profileImage" alt="Profile portrait" />
         <div class="portrait-placeholder" id="portraitPlaceholder">
           <div><b>Your portrait</b>Use Edit Mode to add your profile picture.</div>
@@ -2051,7 +2186,7 @@ initAuth();
 initCloudDb();
 
 // =================================================================
-// 8. SCROLL-DRIVEN BACKGROUND PARALLAX ANIMATION
+// 8. SCROLL-DRIVEN BACKGROUND PARALLAX & PORTRAIT 3D TILT ANIMATION
 // =================================================================
 let scrollTicking = false;
 function updateScrollParallax() {
@@ -2080,6 +2215,25 @@ window.addEventListener('scroll', () => {
 
 window.addEventListener('resize', updateScrollParallax);
 updateScrollParallax();
+
+// Interactive Portrait 3D Card Tilt on Mouse Move
+const portraitWrap = document.querySelector('.portrait-wrap');
+const portraitCard = document.getElementById('portraitCard');
+
+if (portraitWrap && portraitCard) {
+  portraitWrap.addEventListener('mousemove', (e) => {
+    const rect = portraitCard.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    const rotateX = (-y / (rect.height / 2)) * 7;
+    const rotateY = (x / (rect.width / 2)) * 7;
+    portraitCard.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-6px) scale(1.02)`;
+  });
+
+  portraitWrap.addEventListener('mouseleave', () => {
+    portraitCard.style.transform = '';
+  });
+}
 </script>
 </body>
 </html>
