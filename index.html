@@ -323,18 +323,18 @@
     grid-column:span 6;border:1px solid var(--line);background:var(--panel);
     border-radius:var(--radius);overflow:hidden;transition:.25s ease;position:relative;
   }
-  .project:hover{transform:translateY(-4px);border-color:rgba(66,245,129,.32)}
   .project-media{
-    aspect-ratio:16/10;background:#060807;overflow:hidden;
-    display:grid;place-items:center;color:#647069;position:relative;
+    position:relative;width:100%;aspect-ratio:16/10;background:#060807;overflow:hidden;display:block;
   }
-  .project-media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s var(--ease)}
-  .project-media video{width:100%;height:100%;object-fit:cover;display:block;background:#000;cursor:pointer}
-  .project-media iframe{width:100%;height:100%;border:none;display:block}
+  .project-media > img, .project-media > video, .project-media > iframe{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;
+  }
+  .project-media video{background:#000;cursor:pointer}
+  .project-media iframe{border:none}
 
   /* Multi-Media Slider / Carousel */
   .media-slider{
-    position:relative;width:100%;height:100%;overflow:hidden;
+    position:absolute;inset:0;width:100%;height:100%;overflow:hidden;
     user-select:none;-webkit-user-select:none;
     touch-action:pan-y;
   }
@@ -349,10 +349,12 @@
   }
   .media-slides::-webkit-scrollbar{display:none}
   .media-slide{
-    flex:0 0 100%;width:100%;height:100%;position:relative;background:#050706;
-    display:grid;place-items:center;overflow:hidden;
-    scroll-snap-align:start;scroll-snap-stop:always;cursor:pointer;
+    flex:0 0 100%;width:100%;height:100%;min-width:100%;min-height:100%;position:relative;background:#050706;
+    overflow:hidden;scroll-snap-align:start;scroll-snap-stop:always;cursor:pointer;
   }
+  .media-slide img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s var(--ease);background:#0d1410}
+  .media-slide video{width:100%;height:100%;object-fit:cover;display:block;background:#000}
+  .media-slide iframe{width:100%;height:100%;border:none;display:block}
   .media-nav-btn{
     position:absolute;top:50%;transform:translateY(-50%);z-index:12;
     width:36px;height:36px;border-radius:50%;
@@ -1127,7 +1129,7 @@ const defaults = {
     headline2: "visual impact.",
     bio: "Multimedia specialist working across motion design, visual systems, digital experiences and creative technology.",
     linkedIn: "https://www.linkedin.com/in/safin-riyasat-65814337b",
-    profileImage: "",
+    profileImage: "profile.png.png",
     stat1Value: "2021",
     stat1Label: "Creating since",
     stat2Value: "04+",
@@ -2110,6 +2112,9 @@ function load() {
     if (!parsed.profile.facebook) {
       parsed.profile.facebook = defaults.profile.facebook;
     }
+    if (!parsed.profile.profileImage) {
+      parsed.profile.profileImage = defaults.profile.profileImage;
+    }
     if (!parsed.profile.email || parsed.profile.email === 'hello@example.com') {
       parsed.profile.email = defaults.profile.email;
     }
@@ -2182,6 +2187,12 @@ function safeUrl(url) {
   }
 }
 
+function mediaSrc(url) {
+  if (!url) return '';
+  if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
+  return url.split('/').map(seg => encodeURIComponent(seg)).join('/');
+}
+
 function fileToDataURL(file) {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -2229,7 +2240,7 @@ function render() {
   contactLinkedIn.href = safeUrl(p.linkedIn);
 
   if (p.profileImage) {
-    profileImage.src = p.profileImage;
+    profileImage.src = mediaSrc(p.profileImage);
     profileImage.style.display = 'block';
     portraitPlaceholder.style.display = 'none';
   } else {
@@ -2359,10 +2370,10 @@ function renderTheaterItem(p, items, index) {
       if (parsed.type === 'youtube' || parsed.type === 'vimeo') {
         container.innerHTML = `<iframe src="${escapeHTML(parsed.src)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:none"></iframe>`;
       } else {
-        container.innerHTML = `<video src="${escapeHTML(item.src)}" controls autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000"></video>`;
+        container.innerHTML = `<video src="${mediaSrc(item.src)}" controls autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000"></video>`;
       }
     } else {
-      container.innerHTML = `<img src="${escapeHTML(item.src)}" alt="${escapeHTML(p.title)}" style="width:100%;height:100%;object-fit:contain;background:#000">`;
+      container.innerHTML = `<img src="${mediaSrc(item.src)}" alt="${escapeHTML(p.title)}" style="width:100%;height:100%;object-fit:contain;background:#000">`;
     }
   }
 
@@ -2373,8 +2384,8 @@ function renderTheaterItem(p, items, index) {
       thumbStrip.innerHTML = items.map((it, idx) => {
         const activeClass = idx === index ? 'active' : '';
         const preview = it.type === 'video'
-          ? `<video src="${escapeHTML(it.src)}" preload="metadata"></video>`
-          : `<img src="${escapeHTML(it.src)}" alt="Thumb ${idx + 1}">`;
+          ? `<video src="${mediaSrc(it.src)}" preload="metadata"></video>`
+          : `<img src="${mediaSrc(it.src)}" alt="Thumb ${idx + 1}">`;
         return `<div class="theater-thumb-item ${activeClass}" onclick="openTheater('${p.id}', ${idx})" title="View item ${idx + 1}">${preview}</div>`;
       }).join('');
       const activeThumb = thumbStrip.children[index];
@@ -2704,7 +2715,7 @@ function renderProjects() {
       const item = items[0];
       if (item.type === 'video') {
         const videoInfo = parseVideoSource(item.src);
-        const posterAttr = p.thumbnail ? `poster="${escapeHTML(p.thumbnail)}"` : '';
+        const posterAttr = p.thumbnail ? `poster="${mediaSrc(p.thumbnail)}"` : '';
         if (videoInfo.type === 'youtube' || videoInfo.type === 'vimeo') {
           media = `
             <iframe src="${escapeHTML(videoInfo.src)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>
@@ -2716,7 +2727,7 @@ function renderProjects() {
             </div>`;
         } else {
           media = `
-            <video src="${escapeHTML(item.src)}" ${posterAttr} muted loop playsinline autoplay preload="metadata" onclick="openTheater('${p.id}', 0)"></video>
+            <video src="${mediaSrc(item.src)}" ${posterAttr} muted loop playsinline preload="metadata" onclick="openTheater('${p.id}', 0)"></video>
             <div class="video-badge"><svg width="10" height="10" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Video</div>
             <div class="video-controls-overlay">
               <button type="button" class="video-action-btn sound-toggle-btn" onclick="toggleVideoSound(event, this)" title="Unmute sound">
@@ -2730,7 +2741,7 @@ function renderProjects() {
         }
       } else {
         const displaySrc = p.thumbnail || item.src;
-        media = `<img src="${escapeHTML(displaySrc)}" alt="${escapeHTML(p.title)}" loading="lazy" onclick="openTheater('${p.id}', 0)" style="cursor:pointer">`;
+        media = `<img src="${mediaSrc(displaySrc)}" alt="${escapeHTML(p.title)}" loading="lazy" onclick="openTheater('${p.id}', 0)" style="cursor:pointer">`;
       }
     } else if (items.length > 1) {
       // Multi-media Interactive Carousel
@@ -2744,14 +2755,14 @@ function renderProjects() {
         let slideInner = '';
         if (item.type === 'video') {
           const videoInfo = parseVideoSource(item.src);
-          const posterAttr = p.thumbnail ? `poster="${escapeHTML(p.thumbnail)}"` : '';
+          const posterAttr = p.thumbnail ? `poster="${mediaSrc(p.thumbnail)}"` : '';
           if (videoInfo.type === 'youtube' || videoInfo.type === 'vimeo') {
             slideInner = `<iframe src="${escapeHTML(videoInfo.src)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
           } else {
-            slideInner = `<video src="${escapeHTML(item.src)}" ${posterAttr} muted loop playsinline autoplay preload="metadata"></video>`;
+            slideInner = `<video src="${mediaSrc(item.src)}" ${posterAttr} muted loop playsinline preload="metadata"></video>`;
           }
         } else {
-          slideInner = `<img src="${escapeHTML(item.src)}" alt="${escapeHTML(p.title)}" loading="lazy">`;
+          slideInner = `<img src="${mediaSrc(item.src)}" alt="${escapeHTML(p.title)}" loading="lazy">`;
         }
         return `<div class="media-slide" data-index="${idx}">${slideInner}</div>`;
       }).join('');
