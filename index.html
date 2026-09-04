@@ -363,10 +363,81 @@
     *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
   }
 
+  /* Compact Software & Toolkit Section */
+  .tools-compact-section{
+    padding:35px 0 20px;
+    position:relative;
+  }
+  .tools-compact-wrap{
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.022);
+    border-radius:24px;
+    padding:clamp(20px,3vw,28px);
+    backdrop-filter:blur(18px);
+    display:grid;
+    grid-template-columns:1.2fr 1fr;
+    gap:28px;
+    transition:border-color .35s ease,box-shadow .35s ease;
+  }
+  .tools-compact-wrap:hover{
+    border-color:rgba(70,245,138,.25);
+    box-shadow:0 15px 50px rgba(0,0,0,.35);
+  }
+  .tools-compact-group{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .tools-compact-title{
+    font-size:11.5px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:#b4c0b8;
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .tools-compact-title i{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 10px rgba(70,245,138,.6);
+  }
+  .tools-pills{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .tool-pill{
+    display:inline-flex;
+    align-items:center;
+    padding:8px 16px;
+    border-radius:999px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+    font-size:13px;
+    font-weight:550;
+    letter-spacing:-.01em;
+    color:#eef2ef;
+    transition:transform .25s var(--ease),border-color .25s ease,background .25s ease,color .25s ease,box-shadow .25s ease;
+    cursor:default;
+    user-select:none;
+  }
+  .tool-pill:hover{
+    transform:translateY(-2px);
+    border-color:rgba(70,245,138,.45);
+    background:rgba(70,245,138,.09);
+    color:#ffffff;
+    box-shadow:0 6px 20px rgba(0,0,0,.3), 0 0 16px rgba(70,245,138,.12);
+  }
+
   @media(max-width:800px){
     .nav-links{display:none}.hero{grid-template-columns:1fr;padding-top:55px}.portrait-wrap{justify-content:start}
     .portrait-card{width:300px}.section-head{display:block}.section-note{margin-top:14px}
     .project{grid-column:1/-1}.stats{grid-template-columns:1fr}
+    .tools-compact-wrap{grid-template-columns:1fr;gap:20px}
     footer{display:flex;flex-direction:column;align-items:start;gap:12px}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}
     .adminbar{overflow-x:auto;justify-content:start}
   }
@@ -385,6 +456,7 @@
     <div class="brand" title="Double click for owner access"><span class="mark"></span><span id="navName">Safin Riyasat</span></div>
     <div class="nav-links">
       <a href="#about">About</a>
+      <a href="#tools">Tools</a>
       <a href="#work">Work</a>
       <a href="#contact">Contact</a>
     </div>
@@ -419,6 +491,41 @@
         <img id="profileImage" alt="Profile portrait" />
         <div class="portrait-placeholder" id="portraitPlaceholder">
           <div><b>Your portrait</b>Use Edit Mode to add your profile picture.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Creative Suite & Software Section -->
+  <!-- Creative Software Toolkit (Compact & Clean) -->
+  <section id="tools" class="tools-compact-section">
+    <div class="tools-compact-wrap">
+      <!-- Group 1: Video Editing -->
+      <div class="tools-compact-group">
+        <div class="tools-compact-title">
+          <i></i>
+          <span>Video Editing</span>
+        </div>
+        <div class="tools-pills">
+          <span class="tool-pill">Adobe After Effects</span>
+          <span class="tool-pill">Premiere Pro</span>
+          <span class="tool-pill">CapCut</span>
+          <span class="tool-pill">DaVinci Resolve</span>
+          <span class="tool-pill">Alight Motion</span>
+        </div>
+      </div>
+
+      <!-- Group 2: Photo Editing & Digital Arts -->
+      <div class="tools-compact-group">
+        <div class="tools-compact-title">
+          <i></i>
+          <span>Photo Editing &amp; Digital Arts</span>
+        </div>
+        <div class="tools-pills">
+          <span class="tool-pill">Photoshop</span>
+          <span class="tool-pill">Adobe Illustrator</span>
+          <span class="tool-pill">Ibis Paint X</span>
+          <span class="tool-pill">Krita</span>
         </div>
       </div>
     </div>
@@ -1148,9 +1255,55 @@ function listenToCloudUpdates() {
   });
 }
 
+async function compressDataUrl(dataUrl, maxDim = 800, quality = 0.82) {
+  if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image/')) return dataUrl;
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width;
+      let h = img.height;
+      if (w <= maxDim && h <= maxDim && dataUrl.length < 350000) {
+        return resolve(dataUrl);
+      }
+      if (w > maxDim || h > maxDim) {
+        if (w > h) {
+          h = Math.round((h * maxDim) / w);
+          w = maxDim;
+        } else {
+          w = Math.round((w * maxDim) / h);
+          h = maxDim;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
 async function saveToCloud(dataToSave) {
   if (!cloudDb) return false;
-  return cloudDb.collection('portfolio').doc('data').set(dataToSave);
+  const clone = JSON.parse(JSON.stringify(dataToSave));
+  
+  // Compress profile image to fit smoothly within Firestore's 1MB limit
+  if (clone.profile && clone.profile.profileImage) {
+    clone.profile.profileImage = await compressDataUrl(clone.profile.profileImage, 800, 0.82);
+  }
+  // Compress any project images
+  if (Array.isArray(clone.projects)) {
+    for (const pr of clone.projects) {
+      if (pr.media && pr.mediaType === 'image') {
+        pr.media = await compressDataUrl(pr.media, 1000, 0.82);
+      }
+    }
+  }
+
+  return cloudDb.collection('portfolio').doc('data').set(clone);
 }
 
 // Dialog Triggers & Handlers for Cloud Sync
@@ -1250,16 +1403,22 @@ pushToCloudBtn.onclick = async () => {
     console.error(err);
     pushToCloudBtn.disabled = false;
     pushToCloudBtn.textContent = 'Push Data ☁️';
-    if (err.code === 'permission-denied') {
+    const msg = err ? (err.message || String(err)) : 'Unknown error';
+    if (err.code === 'permission-denied' || /permission/i.test(msg)) {
       cloudFeedbackMsg.style.display = 'block';
       cloudFeedbackMsg.style.background = 'rgba(255,95,103,.15)';
       cloudFeedbackMsg.style.color = '#ffd8da';
-      cloudFeedbackMsg.innerHTML = '⚠️ <b>Firebase Permission Denied</b>: Go to <a href="https://console.firebase.google.com" target="_blank" style="color:var(--green)">Firebase Console</a> &gt; Firestore Database &gt; <b>Rules</b> tab, and set: <br><pre style="margin:6px 0;background:rgba(0,0,0,.5);padding:6px;border-radius:6px">allow read, write: if true;</pre>Then click Publish!';
+      cloudFeedbackMsg.innerHTML = '⚠️ <b>Firebase Permission Denied</b>: Go to <a href="https://console.firebase.google.com" target="_blank" style="color:var(--green);text-decoration:underline">Firebase Console</a> &gt; Firestore Database &gt; <b>Rules</b> tab, and set: <br><pre style="margin:6px 0;background:rgba(0,0,0,.5);padding:6px;border-radius:6px;color:#fff">allow read, write: if true;</pre><b>Important: Click the blue "Publish" button!</b>';
+    } else if (/size|exceed|1048576/i.test(msg)) {
+      cloudFeedbackMsg.style.display = 'block';
+      cloudFeedbackMsg.style.background = 'rgba(255,95,103,.15)';
+      cloudFeedbackMsg.style.color = '#ffd8da';
+      cloudFeedbackMsg.innerHTML = `⚠️ <b>Data size exceeds 1MB limit:</b><br>${escapeHTML(msg)}<br><small>If you uploaded a raw video file, use a video link (YouTube, Vimeo, or URL) instead.</small>`;
     } else {
       cloudFeedbackMsg.style.display = 'block';
       cloudFeedbackMsg.style.background = 'rgba(255,95,103,.15)';
       cloudFeedbackMsg.style.color = '#ffd8da';
-      cloudFeedbackMsg.innerHTML = `⚠️ <b>Upload Error:</b> ${escapeHTML(err.message)}`;
+      cloudFeedbackMsg.innerHTML = `⚠️ <b>Upload Error:</b> ${escapeHTML(msg)}`;
     }
   }
 };
@@ -1314,10 +1473,17 @@ function persist(syncRemote = true) {
       showToast('🌐 Saved globally! Visible across all devices.');
     }).catch((err) => {
       console.error('Cloud save failed:', err);
-      if (err.code === 'permission-denied') {
-        showToast('⚠️ Cloud save failed: Check Firestore rules.');
+      const msg = err ? (err.message || String(err)) : 'Unknown error';
+      if (err.code === 'permission-denied' || /permission/i.test(msg)) {
+        showToast('⚠️ Firebase Permission Denied! In Firebase Rules, set allow read, write: if true;');
+        if (isOwner) {
+          alert('Firebase Permission Denied!\n\nIn Firebase Console > Firestore Database > Rules tab:\nSet: allow read, write: if true;\nAnd click the blue "Publish" button!');
+        }
+      } else if (/size|exceed|1048576/i.test(msg)) {
+        showToast('⚠️ Data size exceeds 1MB limit.');
+        alert('File Too Large for Database:\nAn uploaded video or image is too large (>1MB).\nFor videos, please use a URL or YouTube/Vimeo embed!');
       } else {
-        showToast('⚠️ Cloud save failed. Saved locally.');
+        showToast(`⚠️ Cloud save failed: ${msg}`);
       }
     });
   }
@@ -1357,7 +1523,15 @@ function safeUrl(url) {
 function fileToDataURL(file) {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
-    r.onload = () => resolve(r.result);
+    r.onload = async () => {
+      const res = r.result;
+      if (file.type && file.type.startsWith('image/')) {
+        const compressed = await compressDataUrl(res, 800, 0.82);
+        resolve(compressed);
+      } else {
+        resolve(res);
+      }
+    };
     r.onerror = reject;
     r.readAsDataURL(file);
   });
