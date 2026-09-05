@@ -407,14 +407,52 @@
     font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;display:flex;align-items:center;gap:4px;
     pointer-events:none;
   }
+  /* Full-Screen Theater Lightbox Modal & 1:1 Image Showcase */
+  #videoTheaterDialog{
+    width:min(980px,calc(100% - 24px));max-width:980px;background:transparent;
+    padding:0;border:none;border-radius:28px;transition:max-width .3s ease;
+  }
+  #videoTheaterDialog.is-image-view{
+    width:min(760px,calc(100% - 24px));max-width:760px;
+  }
+  .theater-modal{
+    padding:22px;background:#0a0e0b;border:1px solid var(--line);border-radius:28px;
+    box-shadow:0 35px 120px rgba(0,0,0,.85);
+  }
+  .theater-box{
+    position:relative;width:100%;background:#040605;border-radius:20px;
+    overflow:hidden;border:1px solid var(--line);box-shadow:0 25px 80px rgba(0,0,0,.7);
+    display:flex;align-items:center;justify-content:center;
+    transition:aspect-ratio .3s ease,max-width .3s ease;
+  }
+  .theater-box.ratio-square{
+    aspect-ratio:1/1;max-width:min(72vh,660px);margin:0 auto;
+  }
+  .theater-box.ratio-video{
+    aspect-ratio:16/9;max-width:100%;margin:0;
+  }
+  #theaterMediaContainer{
+    width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+    background:#040605;position:relative;overflow:hidden;
+  }
+  #theaterMediaContainer img{
+    width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;
+    display:block;user-select:none;background:#040605;border-radius:12px;
+  }
+  #theaterMediaContainer video{
+    width:100%;height:100%;object-fit:contain;background:#000;
+  }
   .theater-thumb-item{
-    width:58px;height:38px;border-radius:6px;overflow:hidden;border:1.5px solid var(--line);
-    cursor:pointer;opacity:0.6;transition:all .2s ease;flex-shrink:0;background:#000;
+    width:58px;height:46px;border-radius:6px;overflow:hidden;border:1.5px solid var(--line);
+    cursor:pointer;opacity:0.6;transition:all .2s ease;flex-shrink:0;background:#050706;
   }
   .theater-thumb-item.active{
     border-color:var(--green);opacity:1;transform:scale(1.05);box-shadow:0 0 8px rgba(70,245,138,.4);
   }
-  .theater-thumb-item img, .theater-thumb-item video{
+  .theater-thumb-item img{
+    width:100%;height:100%;object-fit:contain;background:#040605;pointer-events:none;
+  }
+  .theater-thumb-item video{
     width:100%;height:100%;object-fit:cover;pointer-events:none;
   }
 
@@ -575,7 +613,8 @@
   .project{transition:transform .5s var(--ease),border-color .4s ease,box-shadow .5s var(--ease)}
   .project:hover{box-shadow:0 22px 65px rgba(0,0,0,.28)}
   .project-media img,.project-media video{transition:transform .7s var(--ease),filter .5s ease}
-  .project:hover .project-media img,.project:hover .project-media video{transform:scale(1.035)}
+  .project:hover .project-media.ratio-video video{transform:scale(1.035)}
+  .project:hover .project-media.ratio-square img{transform:none;filter:brightness(1.06)}
   .filter{transition:background .3s var(--ease),color .3s var(--ease),transform .3s var(--ease)}
   .filter:hover{transform:translateY(-2px)}
   .contact{overflow:hidden;position:relative}
@@ -1083,12 +1122,12 @@ const firebaseConfig = {
   </form>
 </dialog>
 
-<!-- Full-Screen Video Theater Lightbox -->
+<!-- Full-Screen Video & Image Theater Lightbox -->
 <dialog id="videoTheaterDialog">
-  <div class="modal" style="max-width:980px;padding:22px">
+  <div class="modal theater-modal" id="theaterModalInner">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div>
-        <span class="kicker" id="theaterKicker" style="margin-bottom:4px;display:block">Project Media Gallery</span>
+        <span class="kicker" id="theaterKicker" style="margin-bottom:4px;display:block">Project Showcase</span>
         <h3 id="theaterTitle" style="margin:0;font-size:22px">Media Showcase</h3>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
@@ -1096,8 +1135,8 @@ const firebaseConfig = {
         <button class="btn" type="button" onclick="closeTheater()">Close ✕</button>
       </div>
     </div>
-    <div id="theaterPlayerBox" style="position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:0 25px 80px rgba(0,0,0,.7)">
-      <div id="theaterMediaContainer" style="width:100%;height:100%;display:grid;place-items:center;background:#000"></div>
+    <div id="theaterPlayerBox" class="theater-box ratio-square">
+      <div id="theaterMediaContainer"></div>
       <button type="button" id="theaterPrevBtn" class="media-nav-btn prev" style="width:44px;height:44px;font-size:24px;opacity:0.9;left:14px;display:none" onclick="slideTheater(-1, event)" title="Previous (Left arrow)">‹</button>
       <button type="button" id="theaterNextBtn" class="media-nav-btn next" style="width:44px;height:44px;font-size:24px;opacity:0.9;right:14px;display:none" onclick="slideTheater(1, event)" title="Next (Right arrow)">›</button>
     </div>
@@ -2365,8 +2404,10 @@ function renderTheaterItem(p, items, index) {
   const nextBtn = document.getElementById('theaterNextBtn');
   const thumbStrip = document.getElementById('theaterThumbStrip');
 
+  const playerBox = document.getElementById('theaterPlayerBox');
+  const dialogEl = document.getElementById('videoTheaterDialog');
+
   if (titleEl) titleEl.textContent = p.title;
-  if (kickerEl) kickerEl.textContent = item.type === 'video' ? 'Project Video' : 'Project Visual';
   if (descEl) descEl.textContent = p.description || '';
 
   if (counterEl) {
@@ -2381,16 +2422,31 @@ function renderTheaterItem(p, items, index) {
   if (prevBtn) prevBtn.style.display = items.length > 1 ? 'grid' : 'none';
   if (nextBtn) nextBtn.style.display = items.length > 1 ? 'grid' : 'none';
 
-  if (container) {
-    if (item.type === 'video') {
+  if (item.type === 'video') {
+    if (kickerEl) kickerEl.textContent = 'Project Video';
+    if (dialogEl) dialogEl.classList.remove('is-image-view');
+    if (playerBox) {
+      playerBox.classList.remove('ratio-square');
+      playerBox.classList.add('ratio-video');
+    }
+    if (container) {
       const parsed = parseVideoSource(item.src);
       if (parsed.type === 'youtube' || parsed.type === 'vimeo') {
         container.innerHTML = `<iframe src="${escapeHTML(parsed.src)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:none"></iframe>`;
       } else {
         container.innerHTML = `<video src="${mediaSrc(item.src)}" controls autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000"></video>`;
       }
-    } else {
-      container.innerHTML = `<img src="${mediaSrc(item.src)}" alt="${escapeHTML(p.title)}" style="width:100%;height:100%;object-fit:contain;background:#000">`;
+    }
+  } else {
+    // 1:1 Square aspect ratio for clicked pictures - 100% full picture, zero cropping
+    if (kickerEl) kickerEl.textContent = 'Full View (1:1)';
+    if (dialogEl) dialogEl.classList.add('is-image-view');
+    if (playerBox) {
+      playerBox.classList.remove('ratio-video');
+      playerBox.classList.add('ratio-square');
+    }
+    if (container) {
+      container.innerHTML = `<img src="${mediaSrc(item.src)}" alt="${escapeHTML(p.title)}" style="width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;background:#040605;border-radius:14px;display:block">`;
     }
   }
 
@@ -2443,6 +2499,12 @@ videoTheaterDialog.addEventListener('close', () => {
   const container = document.getElementById('theaterMediaContainer');
   if (container) container.innerHTML = '';
   currentTheaterProjectId = null;
+});
+
+videoTheaterDialog.addEventListener('click', (e) => {
+  if (e.target === videoTheaterDialog) {
+    closeTheater();
+  }
 });
 
 // Arrow key navigation for lightbox
