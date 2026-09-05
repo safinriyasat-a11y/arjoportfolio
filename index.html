@@ -191,11 +191,16 @@
   /* Low-End & Mobile Smoothness Profile */
   @media (max-width: 800px), (prefers-reduced-motion: reduce) {
     .aurora-wave-1, .aurora-wave-2, .aurora-wave-3, .aurora-core-glow{
-      filter:blur(22px)!important;
+      filter:blur(20px)!important;
       animation-duration:36s!important;
     }
     .ambient-grain{
-      opacity:.18!important;
+      opacity:.14!important;
+    }
+    nav{
+      backdrop-filter:blur(10px)!important;
+      -webkit-backdrop-filter:blur(10px)!important;
+      background:rgba(5,7,6,.86)!important;
     }
   }
   button,input,textarea,select{font:inherit}
@@ -375,6 +380,8 @@
   .project{
     grid-column:span 6;border:1px solid var(--line);background:var(--panel);
     border-radius:var(--radius);overflow:hidden;transition:.25s ease;position:relative;
+    content-visibility:auto;
+    contain-intrinsic-size:0 420px;
   }
   .project-media{
     position:relative;width:100%;background:#060807;overflow:hidden;display:block;
@@ -828,7 +835,7 @@
         <span>Hi, how are you?</span>
       </div>
       <div class="portrait-card" id="portraitCard">
-        <img id="profileImage" alt="Profile portrait" />
+        <img id="profileImage" alt="Profile portrait" decoding="async" />
         <div class="portrait-placeholder" id="portraitPlaceholder">
           <div><b>Your portrait</b>Use Edit Mode to add your profile picture.</div>
         </div>
@@ -1206,9 +1213,9 @@ const firebaseConfig = {
 
 <div id="toast" aria-live="polite"></div>
 
-<!-- Firebase SDK (Compat version for zero-build static browser support) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<!-- Firebase SDK (Deferred for instant HTML parsing & non-blocking startup) -->
+<script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script>
 // =================================================================
@@ -1959,8 +1966,15 @@ async function initCloudDb() {
   }
 
   if (typeof firebase === 'undefined') {
-    console.warn('Firebase SDK not loaded.');
-    updateCloudStatusUI('error', '⚠️ Firebase SDK not reachable. Check your internet connection.');
+    // Wait for deferred script execution
+    window.addEventListener('load', () => {
+      if (typeof firebase !== 'undefined') {
+        initCloudDb();
+      } else {
+        console.warn('Firebase SDK not loaded.');
+        updateCloudStatusUI('error', '⚠️ Firebase SDK not reachable. Check your internet connection.');
+      }
+    }, { once: true });
     return;
   }
 
@@ -2895,8 +2909,9 @@ function renderProjects() {
               </button>
             </div>`;
         } else {
+          const vPreload = p.thumbnail ? 'none' : 'metadata';
           media = `
-            <video src="${mediaSrc(item.src)}" ${posterAttr} muted loop playsinline preload="metadata" onclick="openTheater('${p.id}', 0)"></video>
+            <video src="${mediaSrc(item.src)}" ${posterAttr} muted loop playsinline preload="${vPreload}" onclick="openTheater('${p.id}', 0)"></video>
             <div class="video-badge"><svg width="10" height="10" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Video</div>
             <div class="video-controls-overlay">
               <button type="button" class="video-action-btn sound-toggle-btn" onclick="toggleVideoSound(event, this)" title="Unmute sound">
@@ -2910,7 +2925,7 @@ function renderProjects() {
         }
       } else {
         const displaySrc = p.thumbnail || item.src;
-        media = `<img src="${mediaSrc(displaySrc)}" alt="${escapeHTML(p.title)}" loading="lazy" onclick="openTheater('${p.id}', 0)" style="cursor:pointer">`;
+        media = `<img src="${mediaSrc(displaySrc)}" alt="${escapeHTML(p.title)}" loading="lazy" decoding="async" onclick="openTheater('${p.id}', 0)" style="cursor:pointer">`;
       }
     } else if (items.length > 1) {
       // Multi-media Interactive Carousel
@@ -2928,10 +2943,10 @@ function renderProjects() {
           if (videoInfo.type === 'youtube' || videoInfo.type === 'vimeo') {
             slideInner = `<iframe src="${escapeHTML(videoInfo.src)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
           } else {
-            slideInner = `<video src="${mediaSrc(item.src)}" ${posterAttr} muted loop playsinline preload="${idx === 0 ? 'metadata' : 'none'}"></video>`;
+            slideInner = `<video src="${mediaSrc(item.src)}" ${posterAttr} muted loop playsinline preload="none"></video>`;
           }
         } else {
-          slideInner = `<img src="${mediaSrc(item.src)}" alt="${escapeHTML(p.title)}" loading="lazy">`;
+          slideInner = `<img src="${mediaSrc(item.src)}" alt="${escapeHTML(p.title)}" loading="lazy" decoding="async">`;
         }
         return `<div class="media-slide" data-index="${idx}">${slideInner}</div>`;
       }).join('');
@@ -3410,12 +3425,9 @@ if (portraitWrap && portraitCard) {
 }
 
 // =================================================================
-// 9. COSMIC MICRO-STARFIELD & DYNAMIC SCROLL DRIFT
-// High-Performance Batched Canvas Rendering (locked 60/120 FPS on all devices)
-// =================================================================
-// =================================================================
 // 9. COSMIC ASTRO MICRO-STARFIELD & DYNAMIC SCROLL PARALLAX DRIFT
 // Distinct, sparkling celestial stars that twinkle & glide through 3D space on scroll
+// Fully optimized: clamped DPR and device-aware density for locked 60-120 FPS
 // =================================================================
 (function initCosmicStarfield() {
   const canvas = document.getElementById('starsCanvas');
@@ -3426,7 +3438,6 @@ if (portraitWrap && portraitCard) {
   let width = 0;
   let height = 0;
   let stars = [];
-  const STAR_COUNT = 165;
   let currentScrollY = window.scrollY || document.documentElement.scrollTop || 0;
   let smoothScrollOffset = currentScrollY;
   let isTabVisible = true;
@@ -3435,7 +3446,8 @@ if (portraitWrap && portraitCard) {
   function resize() {
     width = window.innerWidth;
     height = window.innerHeight;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const isMobile = width < 768;
+    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 1.5);
     canvas.width = Math.floor(width * dpr);
     canvas.height = Math.floor(height * dpr);
     canvas.style.width = width + 'px';
@@ -3446,7 +3458,8 @@ if (portraitWrap && portraitCard) {
 
   function generateStars() {
     stars = [];
-    for (let i = 0; i < STAR_COUNT; i++) {
+    const count = width < 768 ? 115 : 165;
+    for (let i = 0; i < count; i++) {
       const rand = Math.random();
       // Star classification: 72% micro-stars, 22% bright glowing stars, 6% astro cross sparkle stars
       const isSparkle = rand > 0.94;
