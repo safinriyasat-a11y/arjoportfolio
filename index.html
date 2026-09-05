@@ -2425,8 +2425,11 @@ function renderTheaterItem(p, items, index) {
   if (prevBtn) prevBtn.style.display = items.length > 1 ? 'grid' : 'none';
   if (nextBtn) nextBtn.style.display = items.length > 1 ? 'grid' : 'none';
 
+  if (kickerEl) {
+    kickerEl.textContent = p.category ? p.category.toUpperCase() : (item.type === 'video' ? 'VIDEO' : 'PROJECT');
+  }
+
   if (item.type === 'video') {
-    if (kickerEl) kickerEl.textContent = 'Project Video';
     if (dialogEl) {
       dialogEl.classList.remove('is-image-view');
       dialogEl.style.maxWidth = '980px';
@@ -2449,7 +2452,6 @@ function renderTheaterItem(p, items, index) {
     }
   } else {
     // 1:1 Square aspect ratio for clicked pictures - 100% full picture, zero cropping
-    if (kickerEl) kickerEl.textContent = 'Full View (1:1)';
     if (dialogEl) {
       dialogEl.classList.add('is-image-view');
       dialogEl.style.maxWidth = 'min(78vh, 660px)';
