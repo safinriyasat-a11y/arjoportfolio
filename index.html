@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <title>Portfolio — Safin Riyasat</title>
 <meta name="description" content="Minimal green and black multimedia portfolio." />
 <style>
@@ -413,10 +416,10 @@
     padding:0;border:none;border-radius:28px;transition:max-width .3s ease;
   }
   #videoTheaterDialog.is-image-view{
-    width:min(760px,calc(100% - 24px));max-width:760px;
+    width:min(90vw,calc(100% - 24px));max-width:min(78vh,660px);
   }
   .theater-modal{
-    padding:22px;background:#0a0e0b;border:1px solid var(--line);border-radius:28px;
+    padding:20px;background:#0a0e0b;border:1px solid var(--line);border-radius:28px;
     box-shadow:0 35px 120px rgba(0,0,0,.85);
   }
   .theater-box{
@@ -426,10 +429,10 @@
     transition:aspect-ratio .3s ease,max-width .3s ease;
   }
   .theater-box.ratio-square{
-    aspect-ratio:1/1;max-width:min(72vh,660px);margin:0 auto;
+    aspect-ratio:1/1 !important;width:100% !important;max-width:100% !important;margin:0 auto;
   }
   .theater-box.ratio-video{
-    aspect-ratio:16/9;max-width:100%;margin:0;
+    aspect-ratio:16/9 !important;max-width:100% !important;margin:0;
   }
   #theaterMediaContainer{
     width:100%;height:100%;display:flex;align-items:center;justify-content:center;
@@ -2424,10 +2427,17 @@ function renderTheaterItem(p, items, index) {
 
   if (item.type === 'video') {
     if (kickerEl) kickerEl.textContent = 'Project Video';
-    if (dialogEl) dialogEl.classList.remove('is-image-view');
+    if (dialogEl) {
+      dialogEl.classList.remove('is-image-view');
+      dialogEl.style.maxWidth = '980px';
+      dialogEl.style.width = 'min(980px, calc(100% - 24px))';
+    }
     if (playerBox) {
       playerBox.classList.remove('ratio-square');
       playerBox.classList.add('ratio-video');
+      playerBox.style.setProperty('aspect-ratio', '16/9', 'important');
+      playerBox.style.maxWidth = '100%';
+      playerBox.style.margin = '0';
     }
     if (container) {
       const parsed = parseVideoSource(item.src);
@@ -2440,10 +2450,17 @@ function renderTheaterItem(p, items, index) {
   } else {
     // 1:1 Square aspect ratio for clicked pictures - 100% full picture, zero cropping
     if (kickerEl) kickerEl.textContent = 'Full View (1:1)';
-    if (dialogEl) dialogEl.classList.add('is-image-view');
+    if (dialogEl) {
+      dialogEl.classList.add('is-image-view');
+      dialogEl.style.maxWidth = 'min(78vh, 660px)';
+      dialogEl.style.width = 'min(90vw, calc(100% - 24px))';
+    }
     if (playerBox) {
       playerBox.classList.remove('ratio-video');
       playerBox.classList.add('ratio-square');
+      playerBox.style.setProperty('aspect-ratio', '1/1', 'important');
+      playerBox.style.maxWidth = '100%';
+      playerBox.style.margin = '0 auto';
     }
     if (container) {
       container.innerHTML = `<img src="${mediaSrc(item.src)}" alt="${escapeHTML(p.title)}" style="width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;background:#040605;border-radius:14px;display:block">`;
